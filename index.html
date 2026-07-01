@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sirkil - Experiential Marketing & Event Production Agency</title>
+    
+    <!-- Design Stylesheet -->
+    <link rel="stylesheet" href="main.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- React & Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.292.0"
+      }
+    }
+    </script>
+</head>
+<body>
+
+    <div id="root"></div>
+
+    <!-- Script loading projects list -->
+    <script src="project.js"></script>
+
+    <!-- React Code -->
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useMemo, useRef } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { 
+            Film, Image as ImageIcon, ArrowRight, Mail, Phone, 
+            MapPin, Clock, ArrowLeft, Check, ChevronLeft, 
+            ChevronRight, Menu, X, ArrowUpRight, Award, Flame, Calendar,
+            Facebook, Instagram, Linkedin, ArrowDown
+        } from 'lucide-react';
+
+        // ---------------------------------------------------------
+        // CONFIG
+        // ---------------------------------------------------------
+        const CATEGORIES = [
+            "End to end Event Organization",
+            "Concepts & Production",
+            "On Ground Activations",
+            "Branding"
+        ];
+
+        // ---------------------------------------------------------
+        // TYPEWRITER TEXT EFFECT COMPONENT
+        // ---------------------------------------------------------
+        function TypewriterText({ text }) {
+            const [displayText, setDisplayText] = useState('');
+            
+            useEffect(() => {
+                let currentText = '';
+                let index = 0;
+                setDisplayText('');
+                
+                const interval = setInterval(() => {
+                    if (index < text.length) {
+                        currentText += text.charAt(index);
+                        setDisplayText(currentText);
+                        index++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 85); // Speed: 85ms per character
+                
+                return () => clearInterval(interval);
+            }, [text]);
+            
+            return (
+                <span className="typewriter-cursor">{displayText}</span>
+            );
+        }
+
+        // ---------------------------------------------------------
+        // ANIMATED STATS COUNTER COMPONENT
+        // ---------------------------------------------------------
+        function AnimatedCounter({ target, duration = 2000, suffix = "" }) {
+            const [count, setCount] = useState(0);
+            
+            useEffect(() => {
+                let start = 0;
+                const end = parseInt(target, 10);
+                if (start === end) return;
+                
+                const totalMs = parseInt(duration, 10);
+                const steps = 40; // Smooth updates
+                const stepSize = Math.ceil(end / steps);
+                const stepInterval = totalMs / steps;
+                
+                const timer = setInterval(() => {
+                    start += stepSize;
+                    if (start >= end) {
+                        clearInterval(timer);
+                        setCount(end);
+                    } else {
+                        setCount(start);
+                    }
+                }, stepInterval);
+                
+                return () => clearInterval(timer);
+            }, [target, duration]);
+            
+            return <span>{count}{suffix}</span>;
+        }
+
+        // ---------------------------------------------------------
+        // SCROLL FADE IN CONTAINER
+        // ---------------------------------------------------------
+        function FadeInSection(props) {
+            const [isVisible, setVisible] = useState(false);
+            const domRef = useRef();
+            
+            useEffect(() => {
+                const observer = new IntersectionObserver(entries => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            setVisible(true);
+                        }
+                    });
+                }, { threshold: 0.05 });
+                
+                const currentEl = domRef.current;
+                if (currentEl) {
+                    observer.observe(currentEl);
+                }
+                
+                return () => {
+                    if (currentEl) {
+                        observer.unobserve(currentEl);
+                    }
+                    observer.disconnect();
+                };
+            }, []);
+
+            return (
+                <div
+                    className={`fade-in-section ${isVisible ? 'is-visible' : ''}`}
+                    ref={domRef}
+                >
+                    {props.children}
+                </div>
+            );
+        }
+
+        // ---------------------------------------------------------
+        // MAIN APP COMPONENT
+        // ---------------------------------------------------------
+        function App() {
+            const [activePage, setActivePage] = useState('home');
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+            const [selectedProject, setSelectedProject] = useState(null);
+            const [filterCategory, setFilterCategory] = useState('All');
+            const [sortBy, setSortBy] = useState('default');
+            const [scrolled, setScrolled] = useState(false);
+            
+            // Contact form inputs
+            const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
+            const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, submitted
+
+            // Load initial projects list from global project.js variable
+            const hostedProjects = useMemo(() => {
+                if (typeof window.projectsData !== 'undefined') return window.projectsData;
+                if (typeof projectsData !== 'undefined') return projectsData;
+                return [];
+            }, []);
+
+            // 1. Navbar Scroll effect
+            useEffect(() => {
+                const handleScroll = () => {
+                    if (window.scrollY > 30) {
+                        setScrolled(true);
+                    } else {
+                        setScrolled(false);
+                    }
+                };
+                window.addEventListener('scroll', handleScroll);
+                return () => window.removeEventListener('scroll', handleScroll);
+            }, []);
+
+            // 2. Hash Routing Integration
+            useEffect(() => {
+                const handleHashChange = () => {
+                    const hash = window.location.hash.replace('#', '');
+                    const validPages = ['home', 'about', 'portfolio', 'services', 'contact'];
+                    if (validPages.includes(hash)) {
+                        setActivePage(hash);
+                    } else {
+                        setActivePage('home');
+                    }
+                    setMobileMenuOpen(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                };
+
+                window.addEventListener('hashchange', handleHashChange);
+                
+                // Initial page load hash check
+                if (window.location.hash) {
+                    handleHashChange();
+                }
+
+                return () => window.removeEventListener('hashchange', handleHashChange);
+            }, []);
+
+            const navigateTo = (page, categoryFilter = 'All') => {
+                if (categoryFilter !== 'All') {
+                    setFilterCategory(categoryFilter);
+                }
+                window.location.hash = `#${page}`;
+                setActivePage(page);
+                setMobileMenuOpen(false);
+            };
+
+            // 3. Filtered projects for latest section (Home)
+            const latestProjects = useMemo(() => {
+                let filtered = hostedProjects.filter(p => p.showInLatest);
+                if (filtered.length === 0) {
+                    filtered = hostedProjects;
+                }
+                return [...filtered].reverse().slice(0, 3);
+            }, [hostedProjects]);
+
+            // Filtered projects for portfolio grid
+            const filteredProjects = useMemo(() => {
+                let list = filterCategory === 'All' 
+                    ? hostedProjects 
+                    : hostedProjects.filter(p => p.category === filterCategory);
+
+                if (sortBy === 'highest') {
+                    list = [...list].sort((a, b) => (parseFloat(b.rate) || parseFloat(b.rating) || 0) - (parseFloat(a.rate) || parseFloat(a.rating) || 0));
+                } else if (sortBy === 'latest') {
+                    list = [...list].sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
+                }
+                return list;
+            }, [hostedProjects, filterCategory, sortBy]);
+
+            // Form Submit handler
+            const handleFormSubmit = (e) => {
+                e.preventDefault();
+                setFormStatus('submitting');
+                setTimeout(() => {
+                    setFormStatus('submitted');
+                    setFormState({ name: '', email: '', subject: '', message: '' });
+                }, 1500);
+            };
+
+            return (
+                <div className="site-wrapper flex flex-col min-h-screen">
+                    
+                    {/* NAVIGATION BAR */}
+                    <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
+                        {/* Right aligned logo */}
+                        <a href="#home" onClick={() => navigateTo('home')} className="nav-logo">
+                            <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" />
+                        </a>
+
+                        {/* Left aligned pages list */}
+                        <ul className="nav-menu">
+                            <li><a href="#home" onClick={() => navigateTo('home')} className={`nav-link ${activePage === 'home' ? 'active' : ''}`}>HOME</a></li>
+                            <li><a href="#about" onClick={() => navigateTo('about')} className={`nav-link ${activePage === 'about' ? 'active' : ''}`}>ABOUT</a></li>
+                            <li><a href="#services" onClick={() => navigateTo('services')} className={`nav-link ${activePage === 'services' ? 'active' : ''}`}>SERVICES</a></li>
+                            <li><a href="#portfolio" onClick={() => navigateTo('portfolio')} className={`nav-link ${activePage === 'portfolio' ? 'active' : ''}`}>PORTFOLIO</a></li>
+                            <li><a href="#contact" onClick={() => navigateTo('contact')} className={`nav-link ${activePage === 'contact' ? 'active' : ''}`}>CONTACT US</a></li>
+                        </ul>
+
+                        {/* Hamburger icon */}
+                        <button 
+                            className={`hamburger ${mobileMenuOpen ? 'open' : ''}`}
+                            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                        >
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+                    </nav>
+
+                    {/* Mobile Sidebar overlay menu */}
+                    <div 
+                        className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}
+                        onClick={() => setMobileMenuOpen(false)}
+                    />
+                    <div className={`mobile-menu-container ${mobileMenuOpen ? 'open' : ''}`}>
+                        <ul className="mobile-nav-menu">
+                            <li><a href="#home" onClick={() => navigateTo('home')} className={`mobile-nav-link ${activePage === 'home' ? 'active' : ''}`}>HOME</a></li>
+                            <li><a href="#about" onClick={() => navigateTo('about')} className={`mobile-nav-link ${activePage === 'about' ? 'active' : ''}`}>ABOUT</a></li>
+                            <li><a href="#services" onClick={() => navigateTo('services')} className={`mobile-nav-link ${activePage === 'services' ? 'active' : ''}`}>SERVICES</a></li>
+                            <li><a href="#portfolio" onClick={() => navigateTo('portfolio')} className={`mobile-nav-link ${activePage === 'portfolio' ? 'active' : ''}`}>PORTFOLIO</a></li>
+                            <li><a href="#contact" onClick={() => navigateTo('contact')} className={`mobile-nav-link ${activePage === 'contact' ? 'active' : ''}`}>CONTACT US</a></li>
+                        </ul>
+                    </div>
+
+                    {/* MAIN VIEWS */}
+                    <div className="flex-grow pt-[75px]">
+                        
+                        {/* VIEW: HOME */}
+                        {activePage === 'home' && (
+                            <div className="page-enter">
+                                {/* Hero Loop Video Section */}
+                                <section className="hero-section">
+                                    <video className="hero-video" autoPlay loop muted playsInline>
+                                        <source src="assets/sirkil_showreel.mp4" type="video/mp4" />
+                                    </video>
+                                    <div className="hero-overlay">
+                                        <div className="hero-content">
+                                            <h1 className="hero-title">CREATING <span>UNFORGETTABLE</span> ON-GROUND EXPERIENCES</h1>
+                                            <p className="hero-subtitle">We craft premium concepts, scenic production, brand identity, and end-to-end events that engage communities and elevate brand market value.</p>
+                                            <button onClick={() => navigateTo('portfolio')} className="btn-cta">
+                                                <span>Explore Our Work</span>
+                                                <ArrowRight size={14} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                {/* Section 2: Who We Are */}
+                                <FadeInSection>
+                                    <section className="section">
+                                        <div className="whoweare-grid">
+                                            <div className="whoweare-logo-box">
+                                                <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" />
+                                            </div>
+                                            <div className="whoweare-content">
+                                                <h2>WHO WE <span>ARE</span></h2>
+                                                <p>Sirkil is a premier experiential creative agency dedicated to transforming bold visions into tangible physical realities. We design and execute multi-dimensional branding, Scenic structures, and on-ground brand activations that make lasting impressions.</p>
+                                                <p>Our collaborative approach blends marketing strategy with high-tech engineering, scenic manufacturing, and comprehensive event organization. From large-scale public carnivals to bespoke corporate exhibitions, we manage every single detail from start to end.</p>
+                                                <button onClick={() => navigateTo('about')} className="btn-cta text-[11px]">
+                                                    <span>Our Story</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </FadeInSection>
+
+                                {/* Section 3: Infinite Carousels */}
+                                <FadeInSection>
+                                    <section className="carousels-container">
+                                        <div className="carousel-wrapper">
+                                            <h3 className="carousel-title">Brands We Collaborate With</h3>
+                                            <div className="infinite-carousel">
+                                                <div className="carousel-track">
+                                                    {/* Duplicate items for infinite scroll */}
+                                                    {Array.from({ length: 50 }, (_, i) => i + 1).map(i => (
+                                                        <img 
+                                                            key={`client1-${i}`} 
+                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`} 
+                                                            onError={(e) => { e.target.style.display = 'none'; }} 
+                                                            alt="" 
+                                                            loading="lazy" 
+                                                        />
+                                                    ))}
+                                                    {Array.from({ length: 50 }, (_, i) => i + 1).map(i => (
+                                                        <img 
+                                                            key={`client2-${i}`} 
+                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`} 
+                                                            onError={(e) => { e.target.style.display = 'none'; }} 
+                                                            alt="" 
+                                                            loading="lazy" 
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="stamps-wrapper mt-12">
+                                            <h3 className="carousel-title">Events Stamps & Badges</h3>
+                                            <div className="stamps-grid">
+                                                {Array.from({ length: 30 }, (_, i) => i + 1).map(i => (
+                                                    <div key={i} className="stamp-card" title={`Event Stamp #${i}`}>
+                                                        <img 
+                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events%20Stamps/Asset%20${i}.png`} 
+                                                            onError={(e) => { e.target.parentNode.style.display = 'none'; }} 
+                                                            alt="" 
+                                                            loading="lazy" 
+                                                        />
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </section>
+                                </FadeInSection>
+
+                                {/* Section 4: Latest Work Showcase */}
+                                <FadeInSection>
+                                    <section className="section">
+                                        <div className="section-header">
+                                            <div>
+                                                <h2>LATEST <span>PROJECTS</span></h2>
+                                                <p>Take a look at our three most recent event launches and brand productions.</p>
+                                            </div>
+                                            <button onClick={() => navigateTo('portfolio')} className="text-btn">
+                                                <span>View All Work</span>
+                                                <ArrowUpRight size={16} />
+                                            </button>
+                                        </div>
+
+                                        <div className="latest-work-grid">
+                                            {latestProjects.map(p => (
+                                                <div key={p.id} className="work-card animate-fadeIn" onClick={() => setSelectedProject(p)}>
+                                                    {p.thumbnail ? (
+                                                        <img src={p.thumbnail} alt={p.title} className="work-card-img" />
+                                                    ) : (
+                                                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-500">
+                                                            <ImageIcon size={32} />
+                                                        </div>
+                                                    )}
+                                                    <div className="work-card-overlay">
+                                                        <span className="work-card-category">{p.category}</span>
+                                                        <h3 className="work-card-title">{p.title}</h3>
+                                                        <p className="work-card-meta">{p.country} {p.date ? `• ${p.date}` : ''}</p>
+                                                    </div>
+                                                    {p.hasVideo && (
+                                                        <div className="work-card-badge">
+                                                            <Film size={14} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </section>
+                                </FadeInSection>
+
+                                {/* Section 5: Stats */}
+                                <FadeInSection>
+                                    <section className="section stats-section">
+                                        <div className="stats-grid">
+                                            <div className="stat-card">
+                                                <p className="stat-number"><AnimatedCounter target={500} suffix="+" /></p>
+                                                <p className="stat-label">Events Organized</p>
+                                            </div>
+                                            <div className="stat-card">
+                                                <p className="stat-number"><AnimatedCounter target={100} suffix="+" /></p>
+                                                <p className="stat-label">Collaborated Brands</p>
+                                            </div>
+                                            <div className="stat-card">
+                                                <p className="stat-number"><AnimatedCounter target={15} suffix="+" /></p>
+                                                <p className="stat-label">Years of Experience</p>
+                                            </div>
+                                            <div className="stat-card">
+                                                <p className="stat-number"><AnimatedCounter target={4} /></p>
+                                                <p className="stat-label">Production Sectors</p>
+                                            </div>
+                                        </div>
+                                    </section>
+                                </FadeInSection>
+
+                                {/* Section 6: Contact Subsection */}
+                                <FadeInSection>
+                                    <section className="section">
+                                        <div className="contact-cta-card">
+                                            <h3>Ready to Create Something Extraordinary?</h3>
+                                            <p>Contact our project management team today and let's craft a physical experience that makes an impact.</p>
+                                            <button onClick={() => navigateTo('contact')} className="btn-cta text-[11px]">
+                                                <span>Get in Touch</span>
+                                                <ArrowRight size={14} />
+                                            </button>
+                                        </div>
+                                    </section>
+                                </FadeInSection>
+                            </div>
+                        )}
+
+                        {/* VIEW: ABOUT */}
+                        {activePage === 'about' && (
+                            <div className="page-enter">
+                                {/* About page Hero section with typewriter */}
+                                <section className="about-hero-section">
+                                    <div className="about-hero-content">
+                                        <h1 className="about-hero-title">
+                                            <TypewriterText text="we are Buisness Matchmakers" />
+                                        </h1>
+                                        <p className="about-hero-subtitle">We bridge strategy, production, and premium staging to create physical connections that drive impact.</p>
+                                        <div className="scroll-down-indicator" onClick={() => {
+                                            document.getElementById('about-content-section').scrollIntoView({ behavior: 'smooth' });
+                                        }}>
+                                            <span className="text-xs tracking-widest uppercase font-bold text-slate-400">Scroll to Explore</span>
+                                            <div className="arrow-down-bounce">
+                                                <ArrowDown size={20} className="text-primary mt-2 mx-auto" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <div id="about-content-section" className="section">
+                                    <FadeInSection>
+                                        <div className="about-header-grid">
+                                            <div>
+                                                <h2 className="text-3xl font-extrabold mb-4 uppercase">WHO WE ARE & OUR STORY</h2>
+                                                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                                                    Sirkil was founded with a singular vision: to design physical brand environments that leave a permanent mark. We believe that experiential marketing is the most powerful tool for brand engagement. When consumers interact in real-world spaces with creative structural design, branding, and event organization, their connection to the brand solidifies.
+                                                </p>
+                                                <p className="text-slate-400 text-sm leading-relaxed mb-4">
+                                                    We operate state-of-the-art scenic production facilities and collaborate with professional engineers, event managers, designers, and manufacturers to take projects from brief to final delivery. Our projects span international conventions, national day festivals, product launch environments, and customized brand activation stalls.
+                                                </p>
+                                            </div>
+
+                                            <div className="about-info-panel">
+                                                <h3 className="about-info-title">Agency Office Info</h3>
+                                                
+                                                <div className="info-item">
+                                                    <p className="info-item-label">Main Address</p>
+                                                    <p className="info-item-value">Family Park, Suez Road, Cairo, Egypt</p>
+                                                </div>
+                                                
+                                                <div className="info-item">
+                                                    <p className="info-item-label">Hours of Work</p>
+                                                    <p className="info-item-value">Sunday – Thursday<br />9:00 AM – 6:00 PM</p>
+                                                </div>
+
+                                                <div className="info-item">
+                                                    <p className="info-item-label">General Contact</p>
+                                                    <p className="info-item-value">Email: info@sirkil.com<br />Phone: +20 2 9876 5432</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="about-map-block">
+                                            <iframe 
+                                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3451.1352467268875!2d31.603387876274488!3d30.118944515024765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1458189679177a45%3A0xe96349edb879ec2f!2sFamily%20Park!5e0!3m2!1sen!2seg!4v1700000000000!5m2!1sen!2seg" 
+                                                allowFullScreen="" 
+                                                loading="lazy" 
+                                            />
+                                        </div>
+                                    </FadeInSection>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* VIEW: SERVICES */}
+                        {activePage === 'services' && (
+                            <div className="page-enter section">
+                                <FadeInSection>
+                                    <div className="max-w-2xl mb-12">
+                                        <h2 className="text-3xl font-extrabold uppercase mb-3">OUR PRODUCTION SERVICES</h2>
+                                        <p className="text-slate-400 text-sm">We provide end-to-end expertise across four distinct marketing and event production sectors.</p>
+                                    </div>
+
+                                    <div className="services-grid">
+                                        {/* Service 1 */}
+                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'End to end Event Organization')}>
+                                            <div className="service-card-bg-glow" />
+                                            <div>
+                                                <div className="service-header-icon">
+                                                    <Calendar size={22} />
+                                                </div>
+                                                <h3>Event Organization</h3>
+                                                <p>Complete project management from conceptual ideas to venue booking, scheduling, guest management, audio-visual setups, and live event execution.</p>
+                                            </div>
+                                            <div className="service-action-overlay">
+                                                <span>Explore Event Projects</span>
+                                                <ArrowRight size={12} />
+                                            </div>
+                                        </div>
+
+                                        {/* Service 2 */}
+                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'Concepts & Production')}>
+                                            <div className="service-card-bg-glow" />
+                                            <div>
+                                                <div className="service-header-icon">
+                                                    <Flame size={22} />
+                                                </div>
+                                                <h3>Concepts & Production</h3>
+                                                <p>Turning structural blueprints and creative designs into physically built scenic structures, exhibition stands, and large event stages.</p>
+                                            </div>
+                                            <div className="service-action-overlay">
+                                                <span>Explore Production Projects</span>
+                                                <ArrowRight size={12} />
+                                            </div>
+                                        </div>
+
+                                        {/* Service 3 */}
+                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'On Ground Activations')}>
+                                            <div className="service-card-bg-glow" />
+                                            <div>
+                                                <div className="service-header-icon">
+                                                    <Award size={22} />
+                                                </div>
+                                                <h3>On Ground Activations</h3>
+                                                <p>Developing interactive consumer activation stalls, gamified stands, and direct engagements that connect your brand directly to your audience.</p>
+                                            </div>
+                                            <div className="service-action-overlay">
+                                                <span>Explore Activation Projects</span>
+                                                <ArrowRight size={12} />
+                                            </div>
+                                        </div>
+
+                                        {/* Service 4 */}
+                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'Branding')}>
+                                            <div className="service-card-bg-glow" />
+                                            <div>
+                                                <div className="service-header-icon">
+                                                    <ImageIcon size={22} />
+                                                </div>
+                                                <h3>Brand Identity</h3>
+                                                <p>Developing visual guidelines, logos, corporate designs, and physical signage that reflect a strong and consistent brand statement.</p>
+                                            </div>
+                                            <div className="service-action-overlay">
+                                                <span>Explore Branding Projects</span>
+                                                <ArrowRight size={12} />
+                                            </div>
+                                        </div>
+                                    </div>
+                                </FadeInSection>
+                            </div>
+                        )}
+
+                        {/* VIEW: PORTFOLIO */}
+                        {activePage === 'portfolio' && (
+                            <div className="page-enter section">
+                                <FadeInSection>
+                                    <div className="portfolio-header-container">
+                                        <div>
+                                            <h2 className="text-3xl font-extrabold uppercase">PORTFOLIO</h2>
+                                            <p className="text-slate-400 text-sm mt-1">Browse our complete archive of events, branding, and activation projects.</p>
+                                        </div>
+                                        
+                                        {/* Category Filter Tabs with Aligned Sort Select */}
+                                        <div className="portfolio-tabs-bar flex justify-between items-center w-full flex-wrap gap-4">
+                                            <div className="flex flex-wrap gap-2">
+                                                <button 
+                                                    onClick={() => setFilterCategory('All')} 
+                                                    className={`portfolio-tab-btn ${filterCategory === 'All' ? 'active' : ''}`}
+                                                >
+                                                    ALL WORK
+                                                </button>
+                                                <button 
+                                                    onClick={() => setFilterCategory('End to end Event Organization')} 
+                                                    className={`portfolio-tab-btn ${filterCategory === 'End to end Event Organization' ? 'active' : ''}`}
+                                                >
+                                                    EVENTS
+                                                </button>
+                                                <button 
+                                                    onClick={() => setFilterCategory('Concepts & Production')} 
+                                                    className={`portfolio-tab-btn ${filterCategory === 'Concepts & Production' ? 'active' : ''}`}
+                                                >
+                                                    CONCEPTS & PRODUCTION
+                                                </button>
+                                                <button 
+                                                    onClick={() => setFilterCategory('On Ground Activations')} 
+                                                    className={`portfolio-tab-btn ${filterCategory === 'On Ground Activations' ? 'active' : ''}`}
+                                                >
+                                                    ACTIVATIONS
+                                                </button>
+                                                <button 
+                                                    onClick={() => setFilterCategory('Branding')} 
+                                                    className={`portfolio-tab-btn ${filterCategory === 'Branding' ? 'active' : ''}`}
+                                                >
+                                                    BRANDING
+                                                </button>
+                                            </div>
+                                            
+                                            <select 
+                                                value={sortBy}
+                                                onChange={(e) => setSortBy(e.target.value)}
+                                                className="filter-menu-tabs-style"
+                                            >
+                                                <option value="default">Default Sorting</option>
+                                                <option value="highest">Highest Rated</option>
+                                                <option value="latest">Latest Projects</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div className="portfolio-masonry-grid">
+                                        {filteredProjects.map((p) => (
+                                            <div key={p.id} className="work-card animate-fadeIn" onClick={() => setSelectedProject(p)}>
+                                                {p.thumbnail ? (
+                                                    <img src={p.thumbnail} alt={p.title} className="work-card-img" />
+                                                ) : (
+                                                    <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
+                                                        <ImageIcon size={32} />
+                                                    </div>
+                                                )}
+                                                <div className="work-card-overlay">
+                                                    <span className="work-card-category">{p.category}</span>
+                                                    <h3 className="work-card-title">{p.title}</h3>
+                                                    <p className="work-card-meta">{p.country} {p.date ? `• ${p.date}` : ''}</p>
+                                                </div>
+                                                {p.hasVideo && (
+                                                    <div className="work-card-badge">
+                                                        <Film size={14} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                        ))}
+                                        {filteredProjects.length === 0 && (
+                                            <div className="col-span-full py-16 text-center text-slate-500">
+                                                No projects found for the selected category.
+                                            </div>
+                                        )}
+                                    </div>
+                                </FadeInSection>
+                            </div>
+                        )}
+
+                        {/* VIEW: CONTACT */}
+                        {activePage === 'contact' && (
+                            <div className="page-enter section">
+                                <FadeInSection>
+                                    <div className="contact-layout-grid">
+                                        <div className="contact-details-box">
+                                            <div className="contact-card-info">
+                                                <h3 className="contact-details-title">GET IN TOUCH</h3>
+                                                <div className="contact-info-list">
+                                                    <div className="contact-info-block">
+                                                        <div className="contact-icon-wrapper">
+                                                            <MapPin size={18} />
+                                                        </div>
+                                                        <div className="contact-info-text">
+                                                            <h4>Headquarters</h4>
+                                                            <p>Family Park, Suez Road, Cairo, Egypt</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="contact-info-block">
+                                                        <div className="contact-icon-wrapper">
+                                                            <Mail size={18} />
+                                                        </div>
+                                                        <div className="contact-info-text">
+                                                            <h4>Email Support</h4>
+                                                            <p>info@sirkil.com<br />sales@sirkil.com</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="contact-info-block">
+                                                        <div className="contact-icon-wrapper">
+                                                            <Phone size={18} />
+                                                        </div>
+                                                        <div className="contact-info-text">
+                                                            <h4>Phone Line</h4>
+                                                            <p>+20 2 9876 5432<br />+966 11 234 5678</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="contact-info-block">
+                                                        <div className="contact-icon-wrapper">
+                                                            <Clock size={18} />
+                                                        </div>
+                                                        <div className="contact-info-text">
+                                                            <h4>Business Hours</h4>
+                                                            <p>Sunday – Thursday<br />9:00 AM – 6:00 PM</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <h4 className="socials-title">Follow Sirkil</h4>
+                                                <div className="socials-flex">
+                                                    <a href="#" className="social-circle-btn" aria-label="Facebook">
+                                                        <Facebook size={16} />
+                                                    </a>
+                                                    <a href="#" className="social-circle-btn" aria-label="Instagram">
+                                                        <Instagram size={16} />
+                                                    </a>
+                                                    <a href="#" className="social-circle-btn" aria-label="LinkedIn">
+                                                        <Linkedin size={16} />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Feedback form */}
+                                        <div className="contact-form-panel">
+                                            {formStatus === 'submitted' ? (
+                                                <div className="form-success-container flex flex-col items-center justify-center space-y-4">
+                                                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2">
+                                                        <Check size={32} />
+                                                    </div>
+                                                    <h3 className="text-lg font-bold text-slate-900">Thank You!</h3>
+                                                    <p className="text-slate-500 text-xs leading-relaxed max-w-sm">
+                                                        Your contact message has been sent successfully. A project consultant will review your message and reply via email within 24 hours.
+                                                    </p>
+                                                    <button 
+                                                        onClick={() => setFormStatus('idle')} 
+                                                        className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-white transition mt-4"
+                                                    >
+                                                        Send Another Message
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <form onSubmit={handleFormSubmit}>
+                                                    <h3 className="text-lg font-bold mb-6 text-slate-800">Send us a Message</h3>
+                                                    
+                                                    <div className="form-group-grid">
+                                                        <div className="form-group">
+                                                            <label>Your Name</label>
+                                                            <input 
+                                                                type="text" 
+                                                                required
+                                                                value={formState.name}
+                                                                onChange={e => setFormState({...formState, name: e.target.value})}
+                                                                className="form-input-field" 
+                                                                placeholder="e.g. John Doe"
+                                                            />
+                                                        </div>
+                                                        <div className="form-group">
+                                                            <label>Email Address</label>
+                                                            <input 
+                                                                type="email" 
+                                                                required
+                                                                value={formState.email}
+                                                                onChange={e => setFormState({...formState, email: e.target.value})}
+                                                                className="form-input-field" 
+                                                                placeholder="john@example.com"
+                                                            />
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="form-group">
+                                                        <label>Subject</label>
+                                                        <input 
+                                                            type="text" 
+                                                            required
+                                                            value={formState.subject}
+                                                            onChange={e => setFormState({...formState, subject: e.target.value})}
+                                                            className="form-input-field" 
+                                                            placeholder="How can we help you?"
+                                                        />
+                                                    </div>
+
+                                                    <div className="form-group">
+                                                        <label>Message Details</label>
+                                                        <textarea 
+                                                            rows="5" 
+                                                            required
+                                                            value={formState.message}
+                                                            onChange={e => setFormState({...formState, message: e.target.value})}
+                                                            className="form-input-field" 
+                                                            placeholder="Describe your event or branding requirements..."
+                                                        ></textarea>
+                                                    </div>
+
+                                                    <button 
+                                                        type="submit" 
+                                                        disabled={formStatus === 'submitting'}
+                                                        className="btn-form-submit"
+                                                    >
+                                                        {formStatus === 'submitting' ? (
+                                                            <RefreshCw size={14} className="animate-spin" />
+                                                        ) : (
+                                                            <>
+                                                                <span>Send Inquiry</span>
+                                                                <ArrowRight size={14} />
+                                                            </>
+                                                        )}
+                                                    </button>
+                                                </form>
+                                            )}
+                                        </div>
+                                    </div>
+                                </FadeInSection>
+                            </div>
+                        )}
+
+                    </div>
+
+                    {/* DYNAMIC INLINE DETAIL MODAL */}
+                    {selectedProject && (
+                        <ProjectDetailModal 
+                            project={selectedProject} 
+                            onClose={() => setSelectedProject(null)} 
+                        />
+                    )}
+
+                    {/* FOOTER */}
+                    <footer className="footer">
+                        <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" className="footer-logo" />
+                        <p className="footer-copy">&copy; {new Date().getFullYear()} Sirkil Experiential Agency. All rights reserved.</p>
+                    </footer>
+
+                </div>
+            );
+        }
+
+        // Project Detail Modal Inner Component
+        function ProjectDetailModal({ project, onClose }) {
+            const [currentSlide, setCurrentSlide] = useState(0);
+            const slides = project.slideshow || [];
+            
+            // Format video URL
+            const videoUrl = useMemo(() => {
+                let url = project.videoUrl || project.video || "";
+                if (url.includes("github.com") && url.includes("/blob/")) {
+                    url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+                }
+                return url;
+            }, [project]);
+
+            // Handle slide indicators
+            const handlePrevSlide = (e) => {
+                e.stopPropagation();
+                setCurrentSlide(prev => (prev === 0 ? slides.length - 1 : prev - 1));
+            };
+
+            const handleNextSlide = (e) => {
+                e.stopPropagation();
+                setCurrentSlide(prev => (prev === slides.length - 1 ? 0 : prev + 1));
+            };
+
+            return (
+                <div className="modal-backdrop" onClick={onClose}>
+                    <div className="modal-content-card animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+                        
+                        <button className="modal-close-btn" onClick={onClose}>
+                            <X size={18} />
+                        </button>
+
+                        <div className="modal-body">
+                            
+                            {/* Slideshow Image Slider */}
+                            {slides.length > 0 && (
+                                <div className="modal-slider-container mb-6">
+                                    <div className="modal-slider-box">
+                                        <div className="modal-slide">
+                                            <img src={slides[currentSlide]} alt="" />
+                                        </div>
+                                        {slides.length > 1 && (
+                                            <>
+                                                <button className="modal-slider-arrow left" onClick={handlePrevSlide}>
+                                                    <ChevronLeft size={20} />
+                                                </button>
+                                                <button className="modal-slider-arrow right" onClick={handleNextSlide}>
+                                                    <ChevronRight size={20} />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                    {slides.length > 1 && (
+                                        <div className="modal-slider-dots">
+                                            {slides.map((_, idx) => (
+                                                <button 
+                                                    key={idx} 
+                                                    className={`modal-slider-dot ${idx === currentSlide ? 'active' : ''}`}
+                                                    onClick={() => setCurrentSlide(idx)}
+                                                />
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Project Header details split */}
+                            <div className="modal-header-section">
+                                <div className="modal-header-left">
+                                    <h2 className="modal-project-title">{project.title}</h2>
+                                    <p className="modal-project-desc">{project.description || "Experiential brand structure crafted and manufactured for premium visual statement and consumer activations."}</p>
+                                </div>
+                                <div className="modal-info-panel">
+                                    <div className="modal-info-row">
+                                        <span className="modal-info-label">Client</span>
+                                        <span className="modal-info-value">{project.client || "N/A"}</span>
+                                    </div>
+                                    <div className="modal-info-row">
+                                        <span className="modal-info-label">Category</span>
+                                        <span className="modal-info-value truncate max-w-[150px]" title={project.category}>{project.category}</span>
+                                    </div>
+                                    <div className="modal-info-row">
+                                        <span className="modal-info-label">Location</span>
+                                        <span className="modal-info-value">{project.country || "KSA"}</span>
+                                    </div>
+                                    <div className="modal-info-row">
+                                        <span className="modal-info-label">Year</span>
+                                        <span className="modal-info-value">
+                                            {project.year || (project.date ? new Date(project.date).getFullYear() : "N/A")}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Video Player */}
+                            {project.hasVideo && videoUrl && (
+                                <div className="modal-media-block">
+                                    <video controls autoPlay muted playsInline src={videoUrl}></video>
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+                </div>
+            );
+        }
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>

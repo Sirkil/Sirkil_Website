@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Logo Carousel</title>
+    <style>
+        /* Reset margin and prevent iframe scrollbars */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Container styles */
+        .events-carousel-container {
+            width: 100%;
+            max-width: 100%;
+            background: transparent;
+            padding: 20px 0;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* The sliding track */
+        .events-carousel-track {
+            display: flex;
+            width: max-content;
+            align-items: center;
+            /* 80s duration for smooth scrolling */
+            animation: scrollLeft 80s linear infinite;
+        }
+
+        /* Pause animation on hover */
+        .events-carousel-track:hover {
+            animation-play-state: paused;
+        }
+
+        /* Image Styles */
+        .events-carousel-track img {
+            height: 100px;
+            margin: 0 30px;
+            width: auto;
+            object-fit: contain;
+            transition: transform 0.2s;
+        }
+
+        .events-carousel-track img:hover {
+            transform: scale(1.2);
+        }
+
+        /* The Animation Keyframes */
+        @keyframes scrollLeft {
+            0% {
+                transform: translateX(0);
+            }
+
+            100% {
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="events-carousel-container">
+        <div class="events-carousel-track" id="logoTrack"></div>
+    </div>
+
+    <script>
+        const track = document.getElementById('logoTrack');
+        const baseUrl = "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events%20Stamps/Asset%20";
+        const numberOfLogos = 100;
+
+        function createLogo(index) {
+            const img = document.createElement('img');
+            img.src = `${baseUrl}${index}.png`;
+            img.alt = `Client Logo ${index}`;
+            img.loading = "lazy";
+
+            img.onerror = function () {
+                this.style.display = 'none';
+            };
+            return img;
+        }
+
+        // Generate the logos TWICE for the infinite loop effect
+        // First Set
+        for (let i = 1; i <= numberOfLogos; i++) {
+            track.appendChild(createLogo(i));
+        }
+
+        // Duplicate Set
+        for (let i = 1; i <= numberOfLogos; i++) {
+            track.appendChild(createLogo(i));
+        }
+    </script>
+</body>
+
+</html>

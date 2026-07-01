@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Logo Grid</title>
+    <style>
+        /* Reset margin */
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            background: transparent;
+        }
+
+        /* Container styles */
+        .client-grid-container {
+            width: 100%;
+            max-width: 1200px;
+            /* Limits maximum width on large screens */
+            margin: 0 auto;
+            /* Centers the grid */
+            padding: 40px 20px;
+            box-sizing: border-box;
+        }
+
+        /* The Grid layout */
+        .client-grid {
+            display: grid;
+            /* Automatically fits as many 120px minimum columns as possible */
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 40px;
+            /* Space between logos */
+            align-items: center;
+            justify-items: center;
+        }
+
+        /* Image Styles */
+        .client-grid img {
+            width: 100%;
+            max-width: 120px;
+            height: 100px;
+            object-fit: contain;
+            filter: grayscale(100%);
+            /* Adds black and white effect */
+            transition: transform 0.2s, filter 0.2s;
+        }
+
+        .client-grid img:hover {
+            transform: scale(1.2);
+            filter: grayscale(0%);
+            /* Returns color on hover */
+            z-index: 2;
+            /* Ensures the zoomed image appears above others */
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="client-grid-container">
+        <div class="client-grid" id="logoGrid"></div>
+    </div>
+
+    <script>
+        const grid = document.getElementById('logoGrid');
+        const baseUrl = "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20";
+        const numberOfLogos = 100;
+
+        function createLogo(index) {
+            const img = document.createElement('img');
+            img.src = `${baseUrl}${index}.png`;
+            img.alt = `Client Logo ${index}`;
+            img.loading = "lazy";
+
+            // If an image is missing (e.g. Page 40 doesn't exist), hide it completely
+            img.onerror = function () {
+                this.style.display = 'none';
+            };
+            return img;
+        }
+
+        // Generate the logos ONCE for the grid
+        for (let i = 1; i <= numberOfLogos; i++) {
+            grid.appendChild(createLogo(i));
+        }
+    </script>
+</body>

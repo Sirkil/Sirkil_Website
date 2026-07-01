@@ -1,0 +1,1679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sirkil CMS - Project Admin Panel</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        slate: {
+                            850: '#131e35',
+                            950: '#070a13',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Babel Standalone -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Import Map for ESM Modules -->
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@18.2.0",
+        "react-dom/client": "https://esm.sh/react-dom@18.2.0/client",
+        "lucide-react": "https://esm.sh/lucide-react@0.292.0"
+      }
+    }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #070a13;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen">
+
+    <!-- Load Local project.js as script (Fallback default state) -->
+    <script src="project.js"></script>
+
+    <div id="root"></div>
+
+    <script type="text/babel" data-type="module">
+        import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+        import { createRoot } from 'react-dom/client';
+        import { 
+            LayoutDashboard, Plus, Search, Save, X, 
+            Image as ImageIcon, Trash2, Github, 
+            Settings, RefreshCw, Pencil, CheckCircle, AlertCircle, AlertTriangle,
+            Upload, ArrowLeft, ArrowRight, Eye, Film, Link2, Info
+        } from 'lucide-react';
+
+        // ---------------------------------------------------------
+        // CONSTANTS & CONFIG
+        // ---------------------------------------------------------
+        const CATEGORIES = [
+            "Branding",
+            "Concepts & Production",
+            "End to end Event Organization",
+            "On Ground Activations"
+        ];
+
+        // Maps categories to media repo directories
+        const CATEGORY_FOLDERS = {
+            "Branding": "Branding",
+            "Concepts & Production": "Concepts",
+            "End to end Event Organization": "Events",
+            "On Ground Activations": "On Ground Activitions"
+        };
+
+        const defaultGhConfig = {
+            owner: "Sirkil",
+            repo: "Website",
+            path: "project.js",
+            branch: "main",
+            token: ""
+        };
+
+        const defaultMediaConfig = {
+            owner: "Sirkil",
+            repo: "Sirkil_Website_Media",
+            branch: "main"
+        };
+
+        // ---------------------------------------------------------
+        // UTILITIES
+        // ---------------------------------------------------------
+        const fileToBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    // Extract the base64 code (remove "data:*/*;base64,")
+                    const base64 = reader.result.split(',')[1];
+                    resolve(base64);
+                };
+                reader.onerror = (error) => reject(error);
+            });
+        };
+
+        const parseProjectJs = (content) => {
+            const startIndex = content.indexOf('[');
+            const endIndex = content.lastIndexOf(']');
+            if (startIndex === -1 || endIndex === -1 || startIndex > endIndex) {
+                throw new Error("Could not find projectsData array boundaries in project.js");
+            }
+            const arrayStr = content.substring(startIndex, endIndex + 1);
+            try {
+                // Safely evaluate projectsData array
+                return new Function(`return ${arrayStr}`)();
+            } catch (e) {
+                throw new Error("Syntax error parsing project.js content: " + e.message);
+            }
+        };
+
+        // ---------------------------------------------------------
+        // CUSTOM COMPONENTS
+        // ---------------------------------------------------------
+        
+        // Drag and Drop Zone Component
+        const DragDropZone = ({ id, label, accept, onFileSelect, icon: Icon, placeholder }) => {
+            const [isDragActive, setIsDragActive] = useState(false);
+            const fileInputRef = useRef(null);
+
+            const handleDrag = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (e.type === "dragenter" || e.type === "dragover") {
+                    setIsDragActive(true);
+                } else if (e.type === "dragleave") {
+                    setIsDragActive(false);
+                }
+            };
+
+            const handleDrop = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDragActive(false);
+                if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+                    onFileSelect(e.dataTransfer.files);
+                }
+            };
+
+            const handleChange = (e) => {
+                e.preventDefault();
+                if (e.target.files && e.target.files.length > 0) {
+                    onFileSelect(e.target.files);
+                }
+            };
+
+            return (
+                <div 
+                    onDragEnter={handleDrag} 
+                    onDragOver={handleDrag} 
+                    onDragLeave={handleDrag} 
+                    onDrop={handleDrop}
+                    onClick={() => fileInputRef.current?.click()}
+                    className={`border-2 border-dashed rounded-xl p-5 flex flex-col items-center justify-center text-center transition cursor-pointer relative group ${
+                        isDragActive 
+                            ? 'border-indigo-500 bg-indigo-500/10 shadow-lg shadow-indigo-500/5' 
+                            : 'border-slate-800 hover:border-slate-700 bg-slate-900/40 hover:bg-slate-900/60'
+                    }`}
+                >
+                    <input 
+                        ref={fileInputRef}
+                        type="file" 
+                        id={id}
+                        accept={accept}
+                        multiple={id === 'slideshow-upload'}
+                        onChange={handleChange}
+                        className="hidden"
+                    />
+                    <div className="w-10 h-10 rounded-full bg-slate-950 flex items-center justify-center text-slate-400 group-hover:text-indigo-400 transition mb-2">
+                        <Icon size={20} />
+                    </div>
+                    <p className="text-xs text-slate-300 font-medium mb-0.5">
+                        {placeholder}
+                    </p>
+                    <p className="text-[10px] text-slate-500">
+                        Drag and drop or click to browse
+                    </p>
+                </div>
+            );
+        };
+
+        // Confirmation Modal
+        const ConfirmationModal = ({ isOpen, title, message, onConfirm, onCancel, confirmText = "Confirm", cancelText = "Cancel" }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-black/75 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-w-sm w-full p-6 animate-in fade-in zoom-in-95 duration-150">
+                        <div className="flex flex-col items-center text-center space-y-4">
+                            <div className="w-12 h-12 bg-amber-500/15 rounded-full flex items-center justify-center text-amber-500">
+                                <AlertTriangle size={24} />
+                            </div>
+                            <div>
+                                <h3 className="text-base font-bold text-slate-100">{title}</h3>
+                                <p className="text-xs text-slate-400 mt-1 leading-relaxed">{message}</p>
+                            </div>
+                            <div className="flex gap-3 w-full mt-2">
+                                <button onClick={onCancel} className="flex-1 px-4 py-2.5 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 font-medium transition text-xs">
+                                    {cancelText}
+                                </button>
+                                <button onClick={onConfirm} className="flex-1 px-4 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-500 font-medium shadow-lg shadow-indigo-600/25 transition text-xs">
+                                    {confirmText}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Upload Status Modal
+        const UploadProgressModal = ({ isOpen, steps, currentStep, error, onClose }) => {
+            if (!isOpen) return null;
+            return (
+                <div className="fixed inset-0 bg-black/85 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+                    <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6">
+                        <h3 className="text-md font-bold mb-4 flex items-center gap-2 text-slate-100">
+                            <Upload size={18} className="text-indigo-400 animate-bounce" />
+                            <span>Publishing to GitHub</span>
+                        </h3>
+                        <div className="space-y-4">
+                            {steps.map((step, idx) => {
+                                const isPending = step.status === 'pending';
+                                const isRunning = step.status === 'running';
+                                const isSuccess = step.status === 'success';
+                                const isError = step.status === 'error';
+
+                                return (
+                                    <div key={idx} className="flex items-start gap-3">
+                                        <div className="mt-0.5">
+                                            {isPending && <div className="w-4 h-4 rounded-full border-2 border-slate-700"></div>}
+                                            {isRunning && <RefreshCw size={16} className="text-indigo-400 animate-spin" />}
+                                            {isSuccess && <CheckCircle size={16} className="text-emerald-500" />}
+                                            {isError && <AlertCircle size={16} className="text-rose-500" />}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className={`text-xs font-semibold ${
+                                                isRunning ? 'text-indigo-400' : isSuccess ? 'text-slate-300' : isError ? 'text-rose-500' : 'text-slate-500'
+                                            }`}>
+                                                {step.name}
+                                            </p>
+                                            {step.extraInfo && (
+                                                <p className="text-[10px] text-slate-400 mt-0.5 font-mono">{step.extraInfo}</p>
+                                            )}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+
+                        {error && (
+                            <div className="mt-5 p-3 rounded-lg bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs">
+                                <p className="font-bold flex items-center gap-1 mb-1">
+                                    <AlertTriangle size={14} /> Upload Failed
+                                </p>
+                                <p className="font-mono break-all">{error}</p>
+                            </div>
+                        )}
+
+                        {(!error && currentStep === steps.length - 1 && steps[steps.length - 1].status === 'success') && (
+                            <div className="mt-5 text-center p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold animate-pulse">
+                                🎉 Publish Completed Successfully!
+                            </div>
+                        )}
+
+                        {(error || (currentStep === steps.length - 1 && steps[steps.length - 1].status === 'success')) && (
+                            <button 
+                                onClick={onClose} 
+                                className="w-full mt-5 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium rounded-lg transition"
+                            >
+                                Close
+                            </button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // ---------------------------------------------------------
+        // MAIN APP COMPONENT
+        // ---------------------------------------------------------
+        function AdminPanel() {
+            // -- Authentication --
+            const [isAuthenticated, setIsAuthenticated] = useState(false);
+            const [passwordInput, setPasswordInput] = useState("");
+            
+            // -- View Mode --
+            const [view, setView] = useState("dashboard"); // 'dashboard', 'form', 'settings'
+            const [isLoading, setIsLoading] = useState(false);
+            const [searchTerm, setSearchTerm] = useState("");
+            const [filterCategory, setFilterCategory] = useState("All");
+            const [notification, setNotification] = useState(null);
+
+            // -- Confirmation Modal State --
+            const [modalConfig, setModalConfig] = useState({
+                isOpen: false,
+                title: "",
+                message: "",
+                onConfirm: () => {},
+                onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false }))
+            });
+
+            // -- Progress Modal State --
+            const [progressModal, setProgressModal] = useState({
+                isOpen: false,
+                steps: [],
+                currentStep: 0,
+                error: null
+            });
+
+            // -- Repository Configurations --
+            const [ghConfig, setGhConfig] = useState(defaultGhConfig);
+            const [mediaConfig, setMediaConfig] = useState(defaultMediaConfig);
+
+            // -- Data State --
+            const [hostedProjects, setHostedProjects] = useState([]);
+            const [isLocalLoaded, setIsLocalLoaded] = useState(false);
+
+            // -- Form State --
+            const initialFormState = {
+                id: "", 
+                title: "", 
+                category: "Branding", 
+                country: "", 
+                client: "", 
+                industry: "", 
+                rate: "", 
+                date: "", 
+                thumbnail: "", 
+                hasVideo: false, 
+                description: "", 
+                slideshow: [], 
+                video: "",
+                showInLatest: false
+            };
+            const [formData, setFormData] = useState(initialFormState);
+            const [isEditing, setIsEditing] = useState(false); 
+
+            // -- Form Drag & Drop Media State --
+            const [thumbnailItem, setThumbnailItem] = useState(null); // { type: 'url' | 'file', content: string | File }
+            const [slideshowItems, setSlideshowItems] = useState([]); // Array of { id, type: 'url' | 'file', content: string | File }
+            const [videoItem, setVideoItem] = useState(null); // { type: 'url' | 'file', content: string | File }
+
+            // --- 1. Bootstrapping: Load Initial State ---
+            useEffect(() => {
+                // 1. Check local storage config
+                const savedConfig = localStorage.getItem('admin_cms_config');
+                let token = "";
+                if (savedConfig) {
+                    try {
+                        const parsed = JSON.parse(savedConfig);
+                        if (parsed.ghConfig) setGhConfig(parsed.ghConfig);
+                        if (parsed.mediaConfig) setMediaConfig(parsed.mediaConfig);
+                        token = parsed.ghConfig?.token || "";
+                    } catch (e) {
+                        console.error("Failed to parse local CMS config:", e);
+                    }
+                }
+
+                // 2. Load from global workspace project.js variable if available
+                if (typeof window.projectsData !== 'undefined') {
+                    setHostedProjects(window.projectsData);
+                    setIsLocalLoaded(true);
+                } else if (typeof projectsData !== 'undefined') {
+                    // fallback block scope variable
+                    setHostedProjects(projectsData);
+                    setIsLocalLoaded(true);
+                }
+
+                // 3. Auto-load from GitHub if token is saved
+                if (token) {
+                    fetchFromGithub(token);
+                }
+            }, []);
+
+            const handleLogin = (e) => {
+                e.preventDefault();
+                if (passwordInput === "admin123") {
+                    setIsAuthenticated(true);
+                    showNotification("Logged in successfully");
+                } else {
+                    showNotification("Incorrect password", "error");
+                }
+            };
+
+            const showNotification = (msg, type = "success") => {
+                setNotification({ msg, type });
+                setTimeout(() => setNotification(null), 4000);
+            };
+
+            const triggerModal = (title, message, confirmAction) => {
+                setModalConfig({
+                    isOpen: true,
+                    title,
+                    message,
+                    onConfirm: () => {
+                        confirmAction();
+                        setModalConfig(prev => ({ ...prev, isOpen: false }));
+                    },
+                    onCancel: () => setModalConfig(prev => ({ ...prev, isOpen: false }))
+                });
+            };
+
+            // --- 2. API ACTIONS ---
+            
+            // Sync / Load project.js from GitHub Website Repository
+            const fetchFromGithub = async (explicitToken = null) => {
+                const activeToken = explicitToken || ghConfig.token;
+                if (!activeToken) {
+                    showNotification("No token found. Configure it in Settings first.", "error");
+                    return;
+                }
+                setIsLoading(true);
+                try {
+                    const url = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}?ref=${ghConfig.branch}`;
+                    const res = await fetch(url, { 
+                        headers: { 'Authorization': `token ${activeToken}` } 
+                    });
+                    if (!res.ok) throw new Error(`GitHub Fetch Failed (${res.status} ${res.statusText})`);
+                    const data = await res.json();
+                    
+                    // Decode base64 UTF-8 content
+                    const content = new TextDecoder().decode(Uint8Array.from(atob(data.content), c => c.charCodeAt(0)));
+                    
+                    const parsed = parseProjectJs(content);
+                    setHostedProjects(parsed);
+                    setGhConfig(prev => ({ ...prev, sha: data.sha }));
+                    showNotification("Synchronized with GitHub Website repo!");
+                } catch (e) { 
+                    showNotification(e.message, "error"); 
+                }
+                setIsLoading(false);
+            };
+
+            // Generic Github File Upload
+            const uploadFileToGithub = async (config, path, base64Content, existingSha = null) => {
+                // Ensure slashes are preserved but folders/filenames are encoded
+                const apiPath = encodeURIComponent(path).replace(/%2F/g, '/');
+                const url = `https://api.github.com/repos/${config.owner}/${config.repo}/contents/${apiPath}`;
+                
+                const body = {
+                    message: `Upload media asset ${path} via Sirkil CMS`,
+                    content: base64Content,
+                    branch: config.branch || "main"
+                };
+                if (existingSha) {
+                    body.sha = existingSha;
+                }
+                
+                const res = await fetch(url, {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${ghConfig.token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+                
+                if (!res.ok) {
+                    const errData = await res.json();
+                    throw new Error(`Failed uploading file ${path}: ${errData.message || res.statusText}`);
+                }
+                return await res.json();
+            };
+
+            // Raw GitHub content URLs builder
+            const buildRawUrl = (categoryFolder, projectTitle, filename) => {
+                const encodedCategory = encodeURIComponent(categoryFolder);
+                const encodedTitle = encodeURIComponent(projectTitle);
+                return `https://raw.githubusercontent.com/${mediaConfig.owner}/${mediaConfig.repo}/${mediaConfig.branch}/${encodedCategory}/${encodedTitle}/${filename}`;
+            };
+
+            const buildVideoUrl = (projectTitle, fileExtension) => {
+                const encodedTitle = encodeURIComponent(projectTitle);
+                return `https://raw.githubusercontent.com/${mediaConfig.owner}/${mediaConfig.repo}/${mediaConfig.branch}/Videos/${encodedTitle}.${fileExtension}`;
+            };
+
+            // Multi-step commit flow
+            const handleCommitAndPublish = async (e) => {
+                e.preventDefault();
+                if (!formData.title) {
+                    showNotification("Project title is required", "error");
+                    return;
+                }
+                if (!ghConfig.token) {
+                    showNotification("GitHub Token is required. Set it in Settings.", "error");
+                    return;
+                }
+
+                // Verify thumbnail exists
+                if (!thumbnailItem) {
+                    showNotification("Thumbnail is required for a project", "error");
+                    return;
+                }
+
+                // Set initial pending steps
+                const uploadSteps = [
+                    { name: "Checking media folder on GitHub", status: "pending" },
+                    { name: "Uploading Thumbnail image", status: "pending" },
+                    { name: "Uploading Slideshow images", status: "pending" },
+                    { name: "Uploading Project video", status: "pending" },
+                    { name: "Committing project.js to Website Repo", status: "pending" }
+                ];
+
+                setProgressModal({
+                    isOpen: true,
+                    steps: uploadSteps,
+                    currentStep: 0,
+                    error: null
+                });
+
+                const updateStep = (index, status, extraInfo = "") => {
+                    setProgressModal(prev => {
+                        const newSteps = [...prev.steps];
+                        newSteps[index] = { ...newSteps[index], status, extraInfo };
+                        return {
+                            ...prev,
+                            currentStep: index,
+                            steps: newSteps
+                        };
+                    });
+                };
+
+                try {
+                    const categoryFolder = CATEGORY_FOLDERS[formData.category] || formData.category.replace(/[^a-zA-Z0-9]/g, '');
+                    const projectTitle = formData.title.trim();
+
+                    // --- STEP 1: Fetch Existing Files in Media Folder ---
+                    updateStep(0, "running");
+                    let existingFilesMap = {};
+                    try {
+                        const checkUrl = `https://api.github.com/repos/${mediaConfig.owner}/${mediaConfig.repo}/contents/${encodeURIComponent(categoryFolder)}/${encodeURIComponent(projectTitle)}?ref=${mediaConfig.branch}`;
+                        const checkRes = await fetch(checkUrl, {
+                            headers: { 'Authorization': `token ${ghConfig.token}` }
+                        });
+                        if (checkRes.ok) {
+                            const files = await checkRes.json();
+                            if (Array.isArray(files)) {
+                                files.forEach(f => {
+                                    existingFilesMap[f.name] = f.sha;
+                                });
+                            }
+                        }
+                    } catch (e) {
+                        console.log("Folder does not exist or fetch failed, proceeding with empty map");
+                    }
+                    updateStep(0, "success");
+
+                    // --- STEP 2: Upload Thumbnail ---
+                    updateStep(1, "running");
+                    let finalThumbnailUrl = "";
+                    if (thumbnailItem.type === 'url') {
+                        finalThumbnailUrl = thumbnailItem.content;
+                        updateStep(1, "success", "Retained existing URL");
+                    } else {
+                        const file = thumbnailItem.content;
+                        const ext = file.name.split('.').pop() || 'png';
+                        const filename = `1.${ext}`;
+                        const path = `${categoryFolder}/${projectTitle}/${filename}`;
+                        
+                        updateStep(1, "running", `Converting and uploading 1.${ext}...`);
+                        const base64 = await fileToBase64(file);
+                        const existingSha = existingFilesMap[filename];
+                        
+                        await uploadFileToGithub(mediaConfig, path, base64, existingSha);
+                        finalThumbnailUrl = buildRawUrl(categoryFolder, projectTitle, filename);
+                        updateStep(1, "success", `Uploaded 1.${ext}`);
+                    }
+
+                    // --- STEP 3: Upload Slideshow Images ---
+                    updateStep(2, "running");
+                    const finalSlideshowUrls = [];
+                    const filesToUpload = slideshowItems.filter(item => item.type === 'file');
+                    let uploadedCount = 0;
+
+                    for (let i = 0; i < slideshowItems.length; i++) {
+                        const item = slideshowItems[i];
+                        if (item.type === 'url') {
+                            finalSlideshowUrls.push(item.content);
+                        } else {
+                            const file = item.content;
+                            const ext = file.name.split('.').pop() || 'png';
+                            // Slideshow filenames start from 2 (since thumbnail is 1)
+                            const filename = `${i + 2}.${ext}`;
+                            const path = `${categoryFolder}/${projectTitle}/${filename}`;
+                            
+                            uploadedCount++;
+                            updateStep(2, "running", `Uploading image ${uploadedCount}/${filesToUpload.length} (as ${filename})...`);
+                            
+                            const base64 = await fileToBase64(file);
+                            const existingSha = existingFilesMap[filename];
+                            
+                            await uploadFileToGithub(mediaConfig, path, base64, existingSha);
+                            const uploadedUrl = buildRawUrl(categoryFolder, projectTitle, filename);
+                            finalSlideshowUrls.push(uploadedUrl);
+                        }
+                    }
+                    updateStep(2, "success", `Total slideshow images: ${finalSlideshowUrls.length}`);
+
+                    // --- STEP 4: Upload Video ---
+                    updateStep(3, "running");
+                    let finalVideoUrl = "";
+                    if (formData.hasVideo && videoItem) {
+                        if (videoItem.type === 'url') {
+                            finalVideoUrl = videoItem.content;
+                            updateStep(3, "success", "Retained existing URL");
+                        } else {
+                            const file = videoItem.content;
+                            const ext = file.name.split('.').pop() || 'mp4';
+                            const filename = `${projectTitle}.${ext}`;
+                            const path = `Videos/${filename}`;
+                            
+                            updateStep(3, "running", `Uploading ${filename} (may take time)...`);
+                            
+                            // Check video SHA in Videos folder
+                            let videoSha = null;
+                            try {
+                                const videoCheckUrl = `https://api.github.com/repos/${mediaConfig.owner}/${mediaConfig.repo}/contents/Videos/${encodeURIComponent(filename)}?ref=${mediaConfig.branch}`;
+                                const videoCheckRes = await fetch(videoCheckUrl, {
+                                    headers: { 'Authorization': `token ${ghConfig.token}` }
+                                });
+                                if (videoCheckRes.ok) {
+                                    const videoData = await videoCheckRes.json();
+                                    videoSha = videoData.sha;
+                                }
+                            } catch (e) {
+                                console.log("Video check skipped:", e);
+                            }
+
+                            const base64 = await fileToBase64(file);
+                            await uploadFileToGithub(mediaConfig, path, base64, videoSha);
+                            finalVideoUrl = buildVideoUrl(projectTitle, ext);
+                            updateStep(3, "success", `Uploaded Videos/${filename}`);
+                        }
+                    } else {
+                        updateStep(3, "success", "No video file to upload");
+                    }
+
+                    // --- STEP 5: Commit project.js in Website Repository ---
+                    updateStep(4, "running");
+                    
+                    // 1. Fetch current project.js to get the latest SHA
+                    const projectJsUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}?ref=${ghConfig.branch}`;
+                    const projectJsRes = await fetch(projectJsUrl, {
+                        headers: { 'Authorization': `token ${ghConfig.token}` }
+                    });
+                    if (!projectJsRes.ok) {
+                        throw new Error(`Failed to fetch latest project.js from ${ghConfig.owner}/${ghConfig.repo}: ${projectJsRes.statusText}`);
+                    }
+                    const projectJsData = await projectJsRes.json();
+                    const latestSha = projectJsData.sha;
+                    const rawContent = new TextDecoder().decode(Uint8Array.from(atob(projectJsData.content), c => c.charCodeAt(0)));
+                    
+                    // 2. Parse current list
+                    let currentProjects = parseProjectJs(rawContent);
+                    
+                    // 3. Build project data structure
+                    let projectId = formData.id;
+                    if (!projectId) {
+                        projectId = generateNextId(formData.category, currentProjects);
+                    }
+
+                    const projectData = {
+                        id: projectId,
+                        title: projectTitle,
+                        category: formData.category,
+                        country: formData.country,
+                        client: formData.client,
+                        industry: formData.industry,
+                        rate: formData.rate,
+                        date: formData.date,
+                        thumbnail: finalThumbnailUrl,
+                        hasVideo: formData.hasVideo,
+                        description: formData.description,
+                        slideshow: finalSlideshowUrls,
+                        video: finalVideoUrl,
+                        showInLatest: formData.showInLatest || false
+                    };
+
+                    // 4. Update or Insert
+                    const projectIndex = currentProjects.findIndex(p => p.id === projectId);
+                    if (projectIndex >= 0) {
+                        currentProjects[projectIndex] = projectData;
+                    } else {
+                        currentProjects.push(projectData);
+                    }
+
+                    // 5. Serialize and Commit
+                    const updatedCodeContent = `const projectsData = ${JSON.stringify(currentProjects, null, 2)};\n`;
+                    const base64CodeContent = btoa(new TextEncoder().encode(updatedCodeContent).reduce((d, b) => d + String.fromCharCode(b), ''));
+                    
+                    const commitUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}`;
+                    const commitRes = await fetch(commitUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Authorization': `token ${ghConfig.token}`,
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            message: `${isEditing ? 'Update' : 'Create'} project "${projectTitle}" via CMS`,
+                            content: base64CodeContent,
+                            sha: latestSha,
+                            branch: ghConfig.branch
+                        })
+                    });
+
+                    if (!commitRes.ok) {
+                        const errData = await commitRes.json();
+                        throw new Error(`Failed to commit project.js: ${errData.message || commitRes.statusText}`);
+                    }
+
+                    updateStep(4, "success", `Committed id: ${projectId}`);
+                    
+                    // Update internal states
+                    setHostedProjects(currentProjects);
+                    setGhConfig(prev => ({ ...prev, sha: latestSha }));
+                    showNotification(isEditing ? "Project updated successfully!" : "Project created successfully!");
+                    
+                    // Return to Dashboard after a delay
+                    setTimeout(() => {
+                        setProgressModal(prev => ({ ...prev, isOpen: false }));
+                        setView('dashboard');
+                    }, 1500);
+
+                } catch (err) {
+                    console.error("Upload error:", err);
+                    setProgressModal(prev => {
+                        const newSteps = prev.steps.map((s, idx) => {
+                            if (idx === prev.currentStep) return { ...s, status: "error" };
+                            return s;
+                        });
+                        return {
+                            ...prev,
+                            steps: newSteps,
+                            error: err.message
+                        };
+                    });
+                    showNotification("Publish failed: " + err.message, "error");
+                }
+            };
+
+            // Delete project flow (commits change to GitHub)
+            const handleDelete = (project) => {
+                triggerModal(
+                    "Delete Project?",
+                    `Are you sure you want to delete "${project.title}"? This will commit the change directly to GitHub and remove it from the live site.`,
+                    async () => {
+                        if (!ghConfig.token) {
+                            showNotification("GitHub Token is required to delete", "error");
+                            return;
+                        }
+                        setIsLoading(true);
+                        try {
+                            // 1. Fetch current project.js from Website Repo
+                            const projectJsUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}?ref=${ghConfig.branch}`;
+                            const projectJsRes = await fetch(projectJsUrl, {
+                                headers: { 'Authorization': `token ${ghConfig.token}` }
+                            });
+                            if (!projectJsRes.ok) throw new Error("Failed to fetch project.js");
+                            
+                            const projectJsData = await projectJsRes.json();
+                            const currentSha = projectJsData.sha;
+                            const rawContent = new TextDecoder().decode(Uint8Array.from(atob(projectJsData.content), c => c.charCodeAt(0)));
+                            
+                            // 2. Parse projects and filter out target
+                            let currentProjects = parseProjectJs(rawContent);
+                            currentProjects = currentProjects.filter(p => p.id !== project.id);
+                            
+                            // 3. Serialize and commit
+                            const updatedCodeContent = `const projectsData = ${JSON.stringify(currentProjects, null, 2)};\n`;
+                            const base64CodeContent = btoa(new TextEncoder().encode(updatedCodeContent).reduce((d, b) => d + String.fromCharCode(b), ''));
+                            
+                            const commitUrl = `https://api.github.com/repos/${ghConfig.owner}/${ghConfig.repo}/contents/${ghConfig.path}`;
+                            const commitRes = await fetch(commitUrl, {
+                                method: 'PUT',
+                                headers: {
+                                    'Authorization': `token ${ghConfig.token}`,
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify({
+                                    message: `Delete project "${project.title}" via CMS`,
+                                    content: base64CodeContent,
+                                    sha: currentSha,
+                                    branch: ghConfig.branch
+                                })
+                            });
+
+                            if (!commitRes.ok) throw new Error("Failed to commit deletion of project");
+
+                            setHostedProjects(currentProjects);
+                            showNotification("Deleted and committed successfully!");
+                        } catch (e) {
+                            showNotification("Delete failed: " + e.message, "error");
+                        }
+                        setIsLoading(false);
+                    }
+                );
+            };
+
+            // --- 3. STATE AND USER FLOW MANAGERS ---
+            
+            const generateNextId = (categoryName, currentList) => {
+                if (!categoryName) return "";
+                const prefix = categoryName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+
+                const existingNumbers = new Set();
+                currentList.forEach(p => {
+                    if (p.id && p.id.toLowerCase().startsWith(prefix)) {
+                        const suffix = p.id.substring(prefix.length);
+                        if (/^\d+$/.test(suffix)) {
+                            existingNumbers.add(parseInt(suffix, 10));
+                        }
+                    }
+                });
+
+                let nextNum = 1;
+                while (existingNumbers.has(nextNum)) {
+                    nextNum++;
+                }
+                return `${prefix}${nextNum}`;
+            };
+
+            const handleNew = () => {
+                setIsEditing(false);
+                const defaultCat = "Branding";
+                const newId = generateNextId(defaultCat, hostedProjects);
+                
+                setFormData({ ...initialFormState, category: defaultCat, id: newId });
+                setThumbnailItem(null);
+                setSlideshowItems([]);
+                setVideoItem(null);
+                setView('form');
+            };
+
+            const handleEdit = (project) => {
+                setIsEditing(true);
+                setFormData({
+                    ...project,
+                    showInLatest: project.showInLatest || false
+                });
+                
+                // Initialize Media components
+                if (project.thumbnail) {
+                    setThumbnailItem({ type: 'url', content: project.thumbnail });
+                } else {
+                    setThumbnailItem(null);
+                }
+
+                if (project.slideshow && Array.isArray(project.slideshow)) {
+                    setSlideshowItems(project.slideshow.map((url, idx) => ({
+                        id: `existing-${idx}-${Date.now()}`,
+                        type: 'url',
+                        content: url
+                    })));
+                } else {
+                    setSlideshowItems([]);
+                }
+
+                if (project.video) {
+                    setVideoItem({ type: 'url', content: project.video });
+                } else {
+                    setVideoItem(null);
+                }
+
+                setView('form');
+            };
+
+            const handleInputChange = (e) => {
+                const { name, value, type, checked } = e.target;
+                setFormData(prev => {
+                    const newData = { ...prev, [name]: type === 'checkbox' ? checked : value };
+                    
+                    // Re-calc ID for category changes (only if it is a NEW project)
+                    if (name === 'category' && !isEditing) {
+                        newData.id = generateNextId(value, hostedProjects);
+                    }
+                    
+                    return newData;
+                });
+            };
+
+            // Media Selection Handlers
+            const handleThumbnailSelect = (files) => {
+                if (files && files[0]) {
+                    setThumbnailItem({ type: 'file', content: files[0] });
+                }
+            };
+
+            const handleSlideshowSelect = (files) => {
+                if (files && files.length > 0) {
+                    const newItems = Array.from(files).map((file, idx) => ({
+                        id: `new-${idx}-${Date.now()}`,
+                        type: 'file',
+                        content: file
+                    }));
+                    setSlideshowItems(prev => [...prev, ...newItems]);
+                }
+            };
+
+            const handleVideoSelect = (files) => {
+                if (files && files[0]) {
+                    setVideoItem({ type: 'file', content: files[0] });
+                }
+            };
+
+            // Slideshow sorting
+            const moveSlideshowItem = (idx, direction) => {
+                const targetIdx = idx + direction;
+                if (targetIdx < 0 || targetIdx >= slideshowItems.length) return;
+                const items = [...slideshowItems];
+                const temp = items[idx];
+                items[idx] = items[targetIdx];
+                items[targetIdx] = temp;
+                setSlideshowItems(items);
+            };
+
+            const removeSlideshowItem = (id) => {
+                setSlideshowItems(prev => prev.filter(item => item.id !== id));
+            };
+
+            const saveSettings = () => {
+                localStorage.setItem('admin_cms_config', JSON.stringify({
+                    ghConfig,
+                    mediaConfig
+                }));
+                showNotification("Settings saved locally!");
+                // Re-sync with GitHub
+                if (ghConfig.token) {
+                    fetchFromGithub();
+                }
+            };
+
+            // Filter and Search Projects
+            const filteredProjects = useMemo(() => {
+                let list = [...hostedProjects];
+
+                if (filterCategory !== "All") {
+                    list = list.filter(p => p.category === filterCategory);
+                }
+
+                if (searchTerm) {
+                    const term = searchTerm.toLowerCase();
+                    list = list.filter(p => 
+                        (p.title || "").toLowerCase().includes(term) ||
+                        (p.id || "").toLowerCase().includes(term) ||
+                        (p.client || "").toLowerCase().includes(term)
+                    );
+                }
+
+                return list;
+            }, [hostedProjects, searchTerm, filterCategory]);
+
+            // Summary Stats
+            const stats = useMemo(() => {
+                const total = hostedProjects.length;
+                const withVideo = hostedProjects.filter(p => p.hasVideo).length;
+                
+                const catCounts = {};
+                CATEGORIES.forEach(c => catCounts[c] = 0);
+                hostedProjects.forEach(p => {
+                    if (catCounts[p.category] !== undefined) {
+                        catCounts[p.category]++;
+                    }
+                });
+
+                return { total, withVideo, catCounts };
+            }, [hostedProjects]);
+
+            // --- 4. RENDER ---
+            
+            // Login Screen (Unauthenticated)
+            if (!isAuthenticated) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center bg-slate-950 p-4">
+                        <div className="bg-slate-900 border border-slate-800 p-8 rounded-xl shadow-2xl w-full max-w-sm text-center">
+                            <div className="w-16 h-16 bg-indigo-600/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-5 border border-indigo-500/20">
+                                <Github size={32} />
+                            </div>
+                            <h1 className="text-xl font-bold text-slate-100 mb-2">Sirkil CMS Access</h1>
+                            <p className="text-xs text-slate-400 mb-6">Enter password to access the Content Management System</p>
+                            <form onSubmit={handleLogin} className="space-y-4">
+                                <input 
+                                    type="password" 
+                                    value={passwordInput} 
+                                    onChange={e => setPasswordInput(e.target.value)} 
+                                    className="w-full text-center px-4 py-3 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none focus:border-indigo-500 text-sm placeholder-slate-600" 
+                                    placeholder="••••••••" 
+                                />
+                                <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-600/20 transition text-xs">
+                                    Login to Admin Dashboard
+                                </button>
+                            </form>
+                            {notification && <div className="mt-4 text-rose-500 text-xs font-semibold">{notification.msg}</div>}
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen flex flex-col md:flex-row text-xs">
+                    {/* CONFIRMATION MODAL */}
+                    <ConfirmationModal 
+                        isOpen={modalConfig.isOpen}
+                        title={modalConfig.title}
+                        message={modalConfig.message}
+                        onConfirm={modalConfig.onConfirm}
+                        onCancel={modalConfig.onCancel}
+                    />
+
+                    {/* PROGRESS MODAL */}
+                    <UploadProgressModal 
+                        isOpen={progressModal.isOpen}
+                        steps={progressModal.steps}
+                        currentStep={progressModal.currentStep}
+                        error={progressModal.error}
+                        onClose={() => setProgressModal(prev => ({ ...prev, isOpen: false }))}
+                    />
+
+                    {/* SIDEBAR */}
+                    <aside className="w-full md:w-60 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col md:h-screen md:sticky md:top-0">
+                        <div className="p-5 border-b border-slate-850 flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold text-sm">S</div>
+                            <div>
+                                <h2 className="font-bold text-slate-100 text-sm">Sirkil CMS</h2>
+                                <p className="text-[10px] text-indigo-400 font-medium">Dashboard Control</p>
+                            </div>
+                        </div>
+
+                        <nav className="flex-1 p-3 space-y-1">
+                            <button 
+                                onClick={() => setView('dashboard')} 
+                                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-left font-medium ${
+                                    view === 'dashboard' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+                                }`}
+                            >
+                                <LayoutDashboard size={16} />
+                                <span>Dashboard</span>
+                            </button>
+                            <button 
+                                onClick={handleNew} 
+                                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-left font-medium ${
+                                    view === 'form' && !isEditing ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+                                }`}
+                            >
+                                <Plus size={16} />
+                                <span>Add Project</span>
+                            </button>
+                            <button 
+                                onClick={() => setView('settings')} 
+                                className={`w-full flex items-center space-x-3 px-3 py-2.5 rounded-lg transition text-left font-medium ${
+                                    view === 'settings' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/10' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-850'
+                                }`}
+                            >
+                                <Settings size={16} />
+                                <span>CMS Settings</span>
+                            </button>
+                        </nav>
+
+                        <div className="p-4 border-t border-slate-850 space-y-1.5 text-[10px] text-slate-500">
+                            <div className="flex items-center gap-1.5">
+                                <div className={`w-1.5 h-1.5 rounded-full ${isLocalLoaded ? 'bg-emerald-500' : 'bg-rose-500'}`}></div>
+                                <span>Local project.js: {isLocalLoaded ? 'Loaded' : 'Not Found'}</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                                <div className={`w-1.5 h-1.5 rounded-full ${ghConfig.token ? 'bg-emerald-500' : 'bg-amber-500'}`}></div>
+                                <span>GitHub Connection: {ghConfig.token ? 'Active' : 'Missing Token'}</span>
+                            </div>
+                        </div>
+                    </aside>
+
+                    {/* MAIN CONTAINER */}
+                    <main className="flex-1 bg-slate-950 flex flex-col md:h-screen overflow-y-auto relative">
+                        {/* HEADER */}
+                        <header className="bg-slate-900/60 backdrop-blur-md border-b border-slate-850 px-6 py-4 flex justify-between items-center sticky top-0 z-40">
+                            <div>
+                                <h1 className="text-sm font-bold text-slate-100 capitalize">
+                                    {view === 'form' ? (isEditing ? 'Edit Project' : 'Add New Project') : view === 'settings' ? 'CMS Configurations' : 'Dashboard'}
+                                </h1>
+                            </div>
+                            
+                            {view === 'dashboard' && (
+                                <div className="flex gap-2">
+                                    <button 
+                                        onClick={() => fetchFromGithub()} 
+                                        disabled={isLoading}
+                                        className="bg-slate-900 hover:bg-slate-850 text-slate-200 border border-slate-800 px-3.5 py-1.5 rounded-lg flex items-center gap-2 hover:border-slate-700 transition"
+                                    >
+                                        <RefreshCw size={14} className={isLoading ? 'animate-spin' : ''} />
+                                        <span>Sync Git</span>
+                                    </button>
+                                </div>
+                            )}
+                        </header>
+
+                        {/* NOTIFICATION CHIP */}
+                        {notification && (
+                            <div className={`fixed top-4 right-4 z-50 px-4 py-2.5 rounded-lg shadow-xl text-white font-medium animate-in fade-in slide-in-from-top-4 duration-200 ${
+                                notification.type === 'error' ? 'bg-rose-600 border border-rose-500' : 'bg-emerald-600 border border-emerald-500'
+                            }`}>
+                                {notification.msg}
+                            </div>
+                        )}
+
+                        {/* CONTENT WRAPPER */}
+                        <div className="p-6 flex-1 max-w-6xl w-full mx-auto">
+                            
+                            {/* VIEW: DASHBOARD */}
+                            {view === 'dashboard' && (
+                                <div className="space-y-6">
+                                    
+                                    {/* Stats grid */}
+                                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                        <div className="bg-slate-900/40 border border-slate-850 rounded-xl p-4">
+                                            <p className="text-[10px] text-slate-500 font-semibold uppercase">Total Projects</p>
+                                            <p className="text-lg font-bold text-slate-100 mt-1">{stats.total}</p>
+                                        </div>
+                                        <div className="bg-slate-900/40 border border-slate-850 rounded-xl p-4">
+                                            <p className="text-[10px] text-slate-500 font-semibold uppercase">Video Projects</p>
+                                            <p className="text-lg font-bold text-indigo-400 mt-1">{stats.withVideo}</p>
+                                        </div>
+                                        <div className="bg-slate-900/40 border border-slate-850 rounded-xl p-4">
+                                            <p className="text-[10px] text-slate-500 font-semibold uppercase">Branding Projects</p>
+                                            <p className="text-lg font-bold text-slate-100 mt-1">{stats.catCounts["Branding"] || 0}</p>
+                                        </div>
+                                        <div className="bg-slate-900/40 border border-slate-850 rounded-xl p-4">
+                                            <p className="text-[10px] text-slate-500 font-semibold uppercase">Concepts & Prod</p>
+                                            <p className="text-lg font-bold text-slate-100 mt-1">{stats.catCounts["Concepts & Production"] || 0}</p>
+                                        </div>
+                                    </div>
+
+                                    {/* Controls */}
+                                    <div className="flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center">
+                                        <div className="relative w-full sm:max-w-xs">
+                                            <input 
+                                                type="text" 
+                                                placeholder="Search projects..." 
+                                                className="w-full pl-9 pr-4 py-2 bg-slate-900/60 border border-slate-850 rounded-lg text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition" 
+                                                value={searchTerm} 
+                                                onChange={e => setSearchTerm(e.target.value)} 
+                                            />
+                                            <Search className="absolute left-3 top-2.5 text-slate-500" size={14} />
+                                        </div>
+
+                                        <div className="flex gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
+                                            {["All", ...CATEGORIES].map(cat => (
+                                                <button
+                                                    key={cat}
+                                                    onClick={() => setFilterCategory(cat)}
+                                                    className={`px-3 py-1.5 rounded-lg border text-[10px] font-semibold whitespace-nowrap transition ${
+                                                        filterCategory === cat
+                                                            ? 'bg-indigo-600 text-white border-indigo-600 shadow-md shadow-indigo-600/10'
+                                                            : 'bg-slate-900/60 text-slate-400 border-slate-850 hover:text-slate-200 hover:border-slate-800'
+                                                    }`}
+                                                >
+                                                    {cat}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Projects Table */}
+                                    <div className="bg-slate-900/40 border border-slate-850 rounded-xl overflow-hidden shadow-xl">
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead>
+                                                    <tr className="border-b border-slate-850 bg-slate-900/80 text-[10px] text-slate-400 font-semibold uppercase">
+                                                        <th className="px-5 py-3">Asset</th>
+                                                        <th className="px-5 py-3">Title / Client</th>
+                                                        <th className="px-5 py-3">Category</th>
+                                                        <th className="px-5 py-3">Location</th>
+                                                        <th className="px-5 py-3">Media Status</th>
+                                                        <th className="px-5 py-3 text-right">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-900">
+                                                    {filteredProjects.map((p) => (
+                                                        <tr key={p.id} className="hover:bg-slate-900/30 group transition">
+                                                            <td className="px-5 py-3.5">
+                                                                {p.thumbnail ? (
+                                                                    <div className="relative w-10 h-10 rounded overflow-hidden border border-slate-800 bg-slate-950">
+                                                                        <img src={p.thumbnail} alt="" className="w-full h-full object-cover" />
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="w-10 h-10 rounded border border-slate-800 bg-slate-950 flex items-center justify-center text-slate-600">
+                                                                        <ImageIcon size={16} />
+                                                                    </div>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-5 py-3.5 min-w-[150px]">
+                                                                <div className="font-semibold text-slate-200 group-hover:text-indigo-400 transition">{p.title}</div>
+                                                                <div className="text-[10px] text-slate-500 mt-0.5">{p.client || 'No Client'} • {p.industry || 'No Industry'}</div>
+                                                            </td>
+                                                            <td className="px-5 py-3.5 text-slate-400 font-medium">
+                                                                {p.category}
+                                                            </td>
+                                                            <td className="px-5 py-3.5 text-slate-400 font-mono">
+                                                                {p.country || 'N/A'}
+                                                            </td>
+                                                            <td className="px-5 py-3.5">
+                                                                <div className="flex gap-2 items-center">
+                                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-indigo-500/10 text-indigo-400 text-[10px] font-semibold border border-indigo-500/15">
+                                                                        Images ({p.slideshow ? p.slideshow.length : 0})
+                                                                    </span>
+                                                                    {p.hasVideo && (
+                                                                        <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-400 text-[10px] font-semibold border border-amber-500/15">
+                                                                            Video
+                                                                        </span>
+                                                                    )}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-5 py-3.5 text-right whitespace-nowrap">
+                                                                <button 
+                                                                    onClick={() => handleEdit(p)} 
+                                                                    className="text-slate-400 hover:text-indigo-400 hover:bg-slate-850 p-1.5 rounded transition mr-1" 
+                                                                    title="Edit"
+                                                                >
+                                                                    <Pencil size={14} />
+                                                                </button>
+                                                                <button 
+                                                                    onClick={() => handleDelete(p)} 
+                                                                    className="text-slate-400 hover:text-rose-500 hover:bg-slate-850 p-1.5 rounded transition" 
+                                                                    title="Delete"
+                                                                >
+                                                                    <Trash2 size={14} />
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {filteredProjects.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="6" className="text-center py-10 text-slate-500 bg-slate-900/10">
+                                                                No projects match your filter criteria. Add a project or sync with Git.
+                                                            </td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* VIEW: FORM (ADD / EDIT) */}
+                            {view === 'form' && (
+                                <div className="bg-slate-900/50 border border-slate-850 p-6 rounded-xl shadow-xl max-w-4xl mx-auto">
+                                    <form onSubmit={handleCommitAndPublish} className="space-y-6">
+                                        
+                                        {/* Back to dashboard */}
+                                        <div className="flex justify-between items-center pb-4 border-b border-slate-850">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setView('dashboard')} 
+                                                className="text-slate-400 hover:text-slate-200 flex items-center gap-1 text-[11px] font-semibold transition"
+                                            >
+                                                <ArrowLeft size={14} /> Back to Dashboard
+                                            </button>
+                                            {isEditing && (
+                                                <span className="text-[10px] bg-indigo-500/15 border border-indigo-500/30 text-indigo-400 px-2 py-0.5 rounded font-mono font-bold">
+                                                    ID: {formData.id}
+                                                </span>
+                                            )}
+                                        </div>
+
+                                        {/* Row 1: Title & Category */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Project Title</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="title" 
+                                                    value={formData.title} 
+                                                    onChange={handleInputChange} 
+                                                    required 
+                                                    placeholder="e.g. Sakab Sport"
+                                                    className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none focus:border-indigo-500 transition border-slate-800" 
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Category</label>
+                                                <select 
+                                                    name="category" 
+                                                    value={formData.category} 
+                                                    onChange={handleInputChange} 
+                                                    className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none focus:border-indigo-500 transition border-slate-800"
+                                                >
+                                                    {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {/* Row 2: Metadata */}
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Client</label>
+                                                <input type="text" name="client" value={formData.client} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none border-slate-800" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Industry</label>
+                                                <input type="text" name="industry" value={formData.industry} onChange={handleInputChange} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none border-slate-800" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Country / Region</label>
+                                                <input type="text" name="country" value={formData.country} onChange={handleInputChange} placeholder="e.g. KSA, UAE" className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none border-slate-800" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Date</label>
+                                                <input type="text" name="date" value={formData.date} onChange={handleInputChange} placeholder="e.g. 2023" className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none border-slate-800" />
+                                            </div>
+                                        </div>
+
+                                        {/* Options Checkbox */}
+                                        <div className="flex items-center space-x-3 bg-slate-950/60 p-3.5 rounded-lg border border-slate-850">
+                                            <input 
+                                                type="checkbox" 
+                                                name="showInLatest" 
+                                                id="showInLatest"
+                                                checked={formData.showInLatest} 
+                                                onChange={handleInputChange} 
+                                                className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 bg-slate-950 border-slate-800 cursor-pointer"
+                                            />
+                                            <label htmlFor="showInLatest" className="text-xs text-slate-300 font-semibold cursor-pointer">
+                                                Show in Latest Projects grid (Home Page)
+                                            </label>
+                                        </div>
+
+                                        {/* MEDIA DRAG & DROP SECTIONS */}
+                                        <div className="border-t border-slate-850 pt-5 space-y-6">
+                                            <h3 className="text-[11px] font-bold text-indigo-400 uppercase tracking-widest">Media Asset Files</h3>
+                                            
+                                            {/* Thumbnail Drag/Drop */}
+                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start">
+                                                <div>
+                                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Project Thumbnail</label>
+                                                    <DragDropZone 
+                                                        id="thumbnail-upload"
+                                                        accept="image/*"
+                                                        onFileSelect={handleThumbnailSelect}
+                                                        icon={ImageIcon}
+                                                        placeholder="Thumbnail Image"
+                                                    />
+                                                </div>
+                                                <div className="md:col-span-2">
+                                                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Thumbnail Status</label>
+                                                    {thumbnailItem ? (
+                                                        <div className="bg-slate-950 border border-slate-850 rounded-lg p-3 flex items-center justify-between">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-12 h-12 bg-slate-900 border border-slate-800 rounded overflow-hidden flex-shrink-0">
+                                                                    {thumbnailItem.type === 'url' ? (
+                                                                        <img src={thumbnailItem.content} className="w-full h-full object-cover" />
+                                                                    ) : (
+                                                                        <img src={URL.createObjectURL(thumbnailItem.content)} className="w-full h-full object-cover" />
+                                                                    )}
+                                                                </div>
+                                                                <div className="min-w-0 flex-1">
+                                                                    <p className="text-xs font-semibold text-slate-200 truncate">
+                                                                        {thumbnailItem.type === 'file' ? thumbnailItem.content.name : 'Existing Live Image'}
+                                                                    </p>
+                                                                    <p className="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                                                                        {thumbnailItem.type === 'file' 
+                                                                            ? `${(thumbnailItem.content.size / (1024 * 1024)).toFixed(2)} MB [Upload Queue]` 
+                                                                            : <span className="flex items-center text-indigo-400"><Link2 size={10} className="mr-0.5 flex-shrink-0" /> <span className="truncate">{thumbnailItem.content.substring(0, 50)}...</span></span>
+                                                                        }
+                                                                    </p>
+                                                                </div>
+                                                            </div>
+                                                            <button 
+                                                                type="button" 
+                                                                onClick={() => setThumbnailItem(null)} 
+                                                                className="text-slate-500 hover:text-rose-500 p-1.5 rounded hover:bg-slate-900 transition"
+                                                            >
+                                                                <Trash2 size={14} />
+                                                            </button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="bg-slate-950 border border-slate-850 rounded-lg p-3 flex items-center gap-2 text-slate-500 text-xs py-4 justify-center">
+                                                            <Info size={14} /> No Thumbnail selected. (Will be uploaded as 1.png / 1.jpg inside the project directory)
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Slideshow Multiple Drag/Drop */}
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Slideshow Images</label>
+                                                <DragDropZone 
+                                                    id="slideshow-upload"
+                                                    accept="image/*"
+                                                    onFileSelect={handleSlideshowSelect}
+                                                    icon={ImageIcon}
+                                                    placeholder="Add Slideshow Images"
+                                                />
+                                                
+                                                {/* Slideshow Manager Grid */}
+                                                {slideshowItems.length > 0 ? (
+                                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mt-4">
+                                                        {slideshowItems.map((item, index) => {
+                                                            const isUrl = item.type === 'url';
+                                                            const imgSource = isUrl ? item.content : URL.createObjectURL(item.content);
+                                                            const sizeLabel = isUrl ? 'Live URL' : `${(item.content.size / 1024).toFixed(0)} KB`;
+                                                            const indexName = index + 2; // Slideshow starts from 2
+
+                                                            return (
+                                                                <div key={item.id} className="bg-slate-950 border border-slate-850 rounded-lg overflow-hidden flex flex-col group relative">
+                                                                    <div className="relative aspect-video w-full border-b border-slate-850 bg-slate-900 flex items-center justify-center">
+                                                                        <img src={imgSource} className="w-full h-full object-cover" />
+                                                                        <div className="absolute top-1 left-1 bg-black/60 px-1.5 py-0.5 rounded text-[8px] font-bold font-mono text-slate-300">
+                                                                            #{indexName}
+                                                                        </div>
+                                                                    </div>
+                                                                    <div className="p-2 flex-1 flex flex-col justify-between">
+                                                                        <div className="truncate text-[9px] font-semibold text-slate-300">
+                                                                            {isUrl ? 'Existing Asset' : item.content.name}
+                                                                        </div>
+                                                                        <div className="text-[8px] text-slate-500 font-mono mt-0.5">
+                                                                            {sizeLabel}
+                                                                        </div>
+                                                                        
+                                                                        {/* Slideshow card action buttons */}
+                                                                        <div className="flex justify-between items-center mt-2 pt-1 border-t border-slate-900">
+                                                                            <div className="flex gap-1">
+                                                                                <button 
+                                                                                    type="button" 
+                                                                                    onClick={() => moveSlideshowItem(index, -1)} 
+                                                                                    disabled={index === 0}
+                                                                                    className="p-1 rounded bg-slate-900 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                                                                                >
+                                                                                    <ArrowLeft size={10} />
+                                                                                </button>
+                                                                                <button 
+                                                                                    type="button" 
+                                                                                    onClick={() => moveSlideshowItem(index, 1)} 
+                                                                                    disabled={index === slideshowItems.length - 1}
+                                                                                    className="p-1 rounded bg-slate-900 text-slate-400 hover:text-slate-200 disabled:opacity-30 disabled:pointer-events-none"
+                                                                                >
+                                                                                    <ArrowRight size={10} />
+                                                                                </button>
+                                                                            </div>
+                                                                            <button 
+                                                                                type="button" 
+                                                                                onClick={() => removeSlideshowItem(item.id)} 
+                                                                                className="p-1 rounded bg-slate-900 text-slate-500 hover:text-rose-500"
+                                                                            >
+                                                                                <Trash2 size={10} />
+                                                                            </button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </div>
+                                                ) : (
+                                                    <div className="bg-slate-950 border border-slate-850 rounded-lg p-4 text-center text-slate-500 text-xs mt-3 flex items-center justify-center gap-1.5">
+                                                        <Info size={14} /> Slideshow is currently empty. Drag images to build the gallery.
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Video Toggle & Drag/Drop */}
+                                            <div className="border-t border-slate-850 pt-5">
+                                                <div className="flex items-center gap-2 mb-4 bg-slate-950/60 p-3.5 border border-slate-850 rounded-xl">
+                                                    <input 
+                                                        type="checkbox" 
+                                                        id="hasVideo" 
+                                                        name="hasVideo" 
+                                                        checked={formData.hasVideo} 
+                                                        onChange={handleInputChange} 
+                                                        className="w-4 h-4 text-indigo-600 rounded bg-slate-950 border-slate-850 focus:ring-indigo-500 focus:ring-offset-slate-900 border-slate-800" 
+                                                    />
+                                                    <label htmlFor="hasVideo" className="text-xs font-semibold text-slate-200 select-none cursor-pointer">
+                                                        Project contains Video Content
+                                                    </label>
+                                                </div>
+
+                                                {formData.hasVideo && (
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-start animate-in fade-in slide-in-from-top-2 duration-150">
+                                                        <div>
+                                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Project Video file</label>
+                                                            <DragDropZone 
+                                                                id="video-upload"
+                                                                accept="video/*"
+                                                                onFileSelect={handleVideoSelect}
+                                                                icon={Film}
+                                                                placeholder="Upload Video File"
+                                                            />
+                                                        </div>
+                                                        <div className="md:col-span-2">
+                                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Video Status</label>
+                                                            {videoItem ? (
+                                                                <div className="bg-slate-950 border border-slate-850 rounded-lg p-3.5 flex items-center justify-between">
+                                                                    <div className="flex items-center gap-3 min-w-0">
+                                                                        <div className="w-10 h-10 bg-indigo-500/10 rounded border border-indigo-500/25 flex items-center justify-center text-indigo-400">
+                                                                            <Film size={18} />
+                                                                        </div>
+                                                                        <div className="min-w-0 flex-1">
+                                                                            <p className="text-xs font-semibold text-slate-200 truncate">
+                                                                                {videoItem.type === 'file' ? videoItem.content.name : 'Existing Live Video'}
+                                                                            </p>
+                                                                            <p className="text-[10px] text-slate-500 font-mono flex items-center gap-1 mt-0.5">
+                                                                                {videoItem.type === 'file' 
+                                                                                    ? `${(videoItem.content.size / (1024 * 1024)).toFixed(2)} MB [Upload Queue]` 
+                                                                                    : <span className="flex items-center text-indigo-400"><Link2 size={10} className="mr-0.5 flex-shrink-0" /> <span className="truncate">{videoItem.content.substring(0, 50)}...</span></span>
+                                                                                }
+                                                                            </p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        onClick={handleVideoRemove} 
+                                                                        className="text-slate-500 hover:text-rose-500 p-1.5 rounded hover:bg-slate-900 transition"
+                                                                    >
+                                                                        <Trash2 size={14} />
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="bg-slate-950 border border-slate-850 rounded-lg p-4 text-center text-slate-500 text-xs flex items-center justify-center gap-2">
+                                                                    <Info size={14} /> No video file selected. (Will be uploaded as Videos/Project Name.ext in the media repository)
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* Description Textarea */}
+                                        <div className="border-t border-slate-850 pt-5">
+                                            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Project Description</label>
+                                            <textarea 
+                                                name="description" 
+                                                rows="3" 
+                                                value={formData.description} 
+                                                onChange={handleInputChange} 
+                                                placeholder="Write project details..."
+                                                className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 focus:outline-none focus:border-indigo-500 transition text-xs border-slate-800"
+                                            ></textarea>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <div className="flex gap-4 pt-5 border-t border-slate-850">
+                                            <button 
+                                                type="button" 
+                                                onClick={() => setView('dashboard')} 
+                                                className="flex-1 px-4 py-3 bg-slate-900 hover:bg-slate-850 text-slate-300 font-semibold rounded-lg border border-slate-800 transition"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button 
+                                                type="submit" 
+                                                className="flex-1 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-lg shadow-lg shadow-indigo-600/20 transition flex items-center justify-center gap-2"
+                                            >
+                                                <Upload size={14} />
+                                                <span>{isEditing ? 'Commit & Update Project' : 'Commit & Create Project'}</span>
+                                            </button>
+                                        </div>
+
+                                    </form>
+                                </div>
+                            )}
+
+                            {/* VIEW: SETTINGS */}
+                            {view === 'settings' && (
+                                <div className="max-w-xl mx-auto space-y-6">
+                                    <div className="bg-slate-900/50 border border-slate-850 p-6 rounded-xl shadow-xl space-y-5">
+                                        <h2 className="text-sm font-bold text-slate-100 flex items-center gap-2 pb-3 border-b border-slate-850">
+                                            <Settings size={18} className="text-indigo-400" />
+                                            <span>Repository Settings</span>
+                                        </h2>
+                                        
+                                        {/* Website Repo Configuration */}
+                                        <div className="space-y-4">
+                                            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-l-2 border-indigo-500 pl-2">Website Repo (project.js)</h3>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Owner</label>
+                                                    <input type="text" value={ghConfig.owner} onChange={e => setGhConfig({...ghConfig, owner: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Repository Name</label>
+                                                    <input type="text" value={ghConfig.repo} onChange={e => setGhConfig({...ghConfig, repo: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800" />
+                                                </div>
+                                            </div>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Branch</label>
+                                                    <input type="text" value={ghConfig.branch} onChange={e => setGhConfig({...ghConfig, branch: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">File Path</label>
+                                                    <input type="text" value={ghConfig.path} onChange={e => setGhConfig({...ghConfig, path: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Media Repo Configuration */}
+                                        <div className="space-y-4 pt-4 border-t border-slate-850">
+                                            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-l-2 border-indigo-500 pl-2">Media Assets Repo</h3>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Owner</label>
+                                                    <input type="text" value={mediaConfig.owner} onChange={e => setMediaConfig({...mediaConfig, owner: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800" />
+                                                </div>
+                                                <div>
+                                                    <label className="block text-[10px] font-semibold text-slate-400 mb-1">Repository Name</label>
+                                                    <input type="text" value={mediaConfig.repo} onChange={e => setMediaConfig({...mediaConfig, repo: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800" />
+                                                </div>
+                                            </div>
+                                            <div>
+                                                <label className="block text-[10px] font-semibold text-slate-400 mb-1">Branch</label>
+                                                <input type="text" value={mediaConfig.branch} onChange={e => setMediaConfig({...mediaConfig, branch: e.target.value})} className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800 w-1/2" />
+                                            </div>
+                                        </div>
+
+                                        {/* Security Authentication Token */}
+                                        <div className="space-y-3 pt-4 border-t border-slate-850">
+                                            <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 border-l-2 border-indigo-500 pl-2">GitHub Authorization Token</h3>
+                                            <div>
+                                                <label className="block text-[10px] font-semibold text-slate-400 mb-1">Personal Access Token (PAT)</label>
+                                                <input 
+                                                    type="password" 
+                                                    value={ghConfig.token} 
+                                                    onChange={e => setGhConfig({...ghConfig, token: e.target.value})} 
+                                                    placeholder="github_pat_..."
+                                                    className="w-full px-3 py-2 bg-slate-950 border border-slate-850 rounded-lg text-slate-100 text-xs focus:outline-none border-slate-800 font-mono placeholder-slate-700" 
+                                                />
+                                                <p className="text-[9px] text-slate-500 mt-1 leading-normal">
+                                                    Requires a token with permissions to read/write contents of public or private repositories.
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        {/* Actions */}
+                                        <button 
+                                            onClick={saveSettings} 
+                                            className="w-full mt-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-indigo-600/15 transition text-xs"
+                                        >
+                                            Save Settings & Reload Data
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+
+        const root = createRoot(document.getElementById('root'));
+        root.render(<AdminPanel />);
+    </script>
+</body>
+</html>

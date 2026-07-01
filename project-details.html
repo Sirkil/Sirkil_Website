@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Project Details - Sirkil Agency</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --primary: #4f46e5;       /* Indigo */
+      --primary-hover: #4338ca;
+      --accent: #d97706;        /* Amber */
+      --bg-light: #f8fafc;      /* Soft light-gray background */
+      --panel-light: #ffffff;   /* Pure white card backgrounds */
+      --border-light: #e2e8f0;  /* Soft borders */
+      --text-dark: #0f172a;     /* Deep slate text */
+      --text-muted: #64748b;    /* Muted text */
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--bg-light);
+      color: var(--text-dark);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 1300px;
+      margin: 40px auto;
+      padding: 0 24px;
+    }
+
+    /* Back link button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-decoration: none;
+      margin-bottom: 30px;
+      transition: var(--transition);
+    }
+
+    .back-btn:hover {
+      color: var(--primary);
+      transform: translateX(-3px);
+    }
+
+    /* Layout Split grid */
+    .project-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.7fr;
+      gap: 50px;
+      align-items: start;
+    }
+
+    /* Left column */
+    .project-main-content {
+      display: flex;
+      flex-direction: column;
+      gap: 30px;
+    }
+
+    .project-title {
+      font-size: clamp(28px, 5vw, 44px);
+      font-weight: 900;
+      color: var(--text-dark);
+      line-height: 1.1;
+      margin: 0 0 15px 0;
+      letter-spacing: -1px;
+    }
+
+    .project-description {
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    /* Right column: Info Sidebar */
+    .project-sidebar {
+      background-color: var(--panel-light);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .sidebar-title {
+      font-size: 13px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--primary);
+      margin-bottom: 10px;
+      border-left: 3px solid var(--primary);
+      padding-left: 10px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      border-bottom: 1px dashed var(--border-light);
+      padding-bottom: 10px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .info-label {
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+    }
+
+    .info-value {
+      color: var(--text-dark);
+      font-weight: 600;
+      text-align: right;
+    }
+
+    /* --- MEDIA BLOCK STYLING --- */
+    .media-block {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      background-color: #000000;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .media-block img,
+    .media-block video {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: contain;
+      max-height: 600px;
+    }
+
+    /* --- SLIDESHOW CONTAINER --- */
+    .slideshow-container {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border-light);
+      background-color: #f1f5f9;
+      aspect-ratio: 16 / 9;
+      box-shadow: 0 4px 6px -1px rgba(0,0,0,0.02);
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slide img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    /* Slide navigation buttons */
+    .prev, .next {
+      cursor: pointer;
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      background: rgba(255, 255, 255, 0.95);
+      border: 1px solid var(--border-light);
+      color: var(--text-dark);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      user-select: none;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      transition: var(--transition);
+      z-index: 5;
+    }
+
+    .prev:hover, .next:hover {
+      background-color: var(--primary);
+      color: white;
+      border-color: var(--primary);
+    }
+
+    .prev { left: 15px; }
+    .next { right: 15px; }
+
+    /* Indicator dots */
+    .dots {
+      text-align: center;
+      margin-top: 15px;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .dot {
+      cursor: pointer;
+      height: 8px;
+      width: 8px;
+      background-color: #cbd5e1;
+      border-radius: 50%;
+      display: inline-block;
+      transition: var(--transition);
+    }
+
+    .dot.active {
+      background-color: var(--primary);
+      width: 20px;
+      border-radius: 4px;
+    }
+
+    /* Error Panel */
+    .error-panel {
+      text-align: center;
+      padding: 50px 20px;
+      background: var(--panel-light);
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      max-width: 600px;
+      margin: 40px auto;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+    }
+
+    .error-panel h3 {
+      font-size: 18px;
+      margin-bottom: 10px;
+    }
+
+    .error-panel p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+    }
+
+    /* Responsive Queries */
+    @media (max-width: 900px) {
+      .project-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+      .project-sidebar {
+        order: 1; /* Puts specs card at the top on mobile */
+      }
+      .project-main-content {
+        order: 2;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Back Navigation -->
+    <a href="portfolio.html" class="back-btn">
+      <span>❮ Back to Portfolio</span>
+    </a>
+
+    <!-- Container for dynamic render -->
+    <div id="project-details-root"></div>
+  </div>
+
+  <!-- Load Local project.js relative to file -->
+  <script src="project.js"></script>
+
+  <script>
+    const root = document.getElementById("project-details-root");
+
+    // Safety checks
+    if (typeof projectsData === 'undefined') {
+      root.innerHTML = `
+        <div class="error-panel">
+          <h3>projectsData is missing</h3>
+          <p>Could not locate the <code>project.js</code> file. Please make sure that <code>project.js</code> is in the same directory as this HTML file.</p>
+        </div>
+      `;
+    } else {
+      loadProjectDetails();
+    }
+
+    function loadProjectDetails() {
+      const params = new URLSearchParams(window.location.search);
+      const projectId = params.get("id");
+      const project = projectsData.find(p => p.id == projectId);
+
+      if (project) {
+        // Format video URL
+        let videoUrl = project.videoUrl || project.video || "";
+        if (videoUrl.includes("github.com") && videoUrl.includes("/blob/")) {
+          videoUrl = videoUrl.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/");
+        }
+
+        const slideshowImages = project.slideshow || project.gallery || [];
+
+        // Build HTML template
+        root.innerHTML = `
+          <div class="project-grid">
+            
+            <!-- Left main media & description -->
+            <div class="project-main-content">
+              <div>
+                <h1 class="project-title">${project.title}</h1>
+                <p class="project-description">${project.description || "Experiential brand structure crafted and manufactured for premium visual statement and consumer activations."}</p>
+              </div>
+
+              <!-- Slideshow (if exists) -->
+              ${slideshowImages.length > 0 ? `
+                <div class="slideshow-wrapper">
+                  <div class="slideshow-container">
+                    ${slideshowImages.map((img, i) => `
+                      <div class="slide" style="${i === 0 ? "display:flex" : ""}">
+                        <img src="${img}" alt="">
+                      </div>
+                    `).join("")}
+                    ${slideshowImages.length > 1 ? `
+                      <a class="prev" onclick="changeSlide(-1)">❮</a>
+                      <a class="next" onclick="changeSlide(1)">❯</a>
+                    ` : ''}
+                  </div>
+                  ${slideshowImages.length > 1 ? `
+                    <div class="dots">
+                      ${slideshowImages.map((_, i) => `
+                        <span class="dot ${i === 0 ? "active" : ""}" onclick="currentSlide(${i})"></span>
+                      `).join("")}
+                    </div>
+                  ` : ''}
+                </div>
+              ` : ''}
+
+              <!-- Video (if exists) -->
+              ${videoUrl ? `
+                <div class="media-block">
+                  <video controls>
+                    <source src="${videoUrl}" type="video/mp4">
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+              ` : ''}
+
+              <!-- Thumbnail (show only if slideshow is empty) -->
+              ${(slideshowImages.length === 0 && project.thumbnail) ? `
+                <div class="media-block">
+                  <img src="${project.thumbnail}" alt="${project.title}">
+                </div>
+              ` : ''}
+
+            </div>
+
+            <!-- Right Sidebar specs card -->
+            <div class="project-sidebar">
+              <h3 class="sidebar-title">Project Specifications</h3>
+              
+              <div class="info-row">
+                <span class="info-label">Client</span>
+                <span class="info-value">${project.client || "N/A"}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Industry</span>
+                <span class="info-value">${project.industry || "N/A"}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Category</span>
+                <span class="info-value">${project.category || "N/A"}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Location</span>
+                <span class="info-value">${project.country || "KSA"}</span>
+              </div>
+
+              <div class="info-row">
+                <span class="info-label">Year</span>
+                <span class="info-value">
+                  ${project.year || (project.date ? new Date(project.date).getFullYear() : "N/A")}
+                </span>
+              </div>
+            </div>
+
+          </div>
+        `;
+
+        if (slideshowImages.length > 1) {
+          initSlideshowLogic();
+        }
+      } else {
+        root.innerHTML = `
+          <div class="error-panel">
+            <h3>Project not found</h3>
+            <p>The project with ID "<code>${projectId || 'unknown'}</code>" could not be found in the current projects array.</p>
+          </div>
+        `;
+      }
+    }
+
+    // Vanilla Slideshow control variables and logic
+    let slideIndex = 0;
+    
+    function initSlideshowLogic() {
+      window.changeSlide = function(n) {
+        showSlides(slideIndex += n);
+      };
+
+      window.currentSlide = function(n) {
+        showSlides(slideIndex = n);
+      };
+
+      function showSlides(n) {
+        const slides = document.getElementsByClassName("slide");
+        const dots = document.getElementsByClassName("dot");
+        
+        if (n >= slides.length) { slideIndex = 0; }
+        if (n < 0) { slideIndex = slides.length - 1; }
+        
+        for (let i = 0; i < slides.length; i++) {
+          slides[i].style.display = "none";
+        }
+        for (let i = 0; i < dots.length; i++) {
+          dots[i].className = dots[i].className.replace(" active", "");
+        }
+        
+        slides[slideIndex].style.display = "flex";
+        dots[slideIndex].className += " active";
+      }
+    }
+  </script>
+</body>
+</html>
