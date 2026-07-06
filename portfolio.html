@@ -12,14 +12,14 @@
 
   <style>
     :root {
-      --primary: #4f46e5;       /* Indigo */
-      --primary-hover: #4338ca;
-      --accent: #d97706;        /* Amber */
-      --bg-light: #f8fafc;      /* Soft light-gray background */
+      --primary: #97fbbf;       /* Sirkil Mint Green */
+      --primary-hover: #7ae2aa; /* Slightly darker Mint Green for hover states */
+      --accent: #97fbbf;        /* Mint Green Accent */
+      --bg-light: #ffffff;      /* Pure white background */
       --panel-light: #ffffff;   /* Pure white card backgrounds */
       --border-light: #e2e8f0;  /* Soft borders */
-      --text-dark: #0f172a;     /* Deep slate text */
-      --text-muted: #64748b;    /* Muted text */
+      --text-dark: #000000;     /* Deep black text */
+      --text-muted: #4b5563;    /* Dark slate/gray text for readability */
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -65,8 +65,8 @@
     }
 
     .portfolio-tab.active {
-      color: var(--primary);
-      background-color: rgba(79, 70, 229, 0.05);
+      color: var(--text-dark);
+      background-color: rgba(151, 251, 191, 0.2);
       border-bottom: 2px solid var(--primary);
     }
 
@@ -112,7 +112,7 @@
 
     .portfolio-item:hover {
       transform: translateY(-4px) scale(1.01);
-      border-color: rgba(79, 70, 229, 0.3);
+      border-color: var(--primary);
       box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.08);
     }
 
@@ -187,7 +187,7 @@
 
     .portfolio-item:hover .play-icon {
       background-color: var(--primary);
-      color: white;
+      color: var(--text-dark);
       border-color: var(--primary);
     }
 

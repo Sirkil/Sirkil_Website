@@ -3,15 +3,15 @@
    ========================================================================== */
 
 :root {
-    --primary: #4f46e5;       /* Indigo */
-    --primary-hover: #4338ca;
-    --accent: #d97706;        /* Amber */
-    --accent-hover: #b45309;
-    --bg-light: #f8fafc;      /* Soft light-gray background */
+    --primary: #97fbbf;       /* Sirkil Mint Green */
+    --primary-hover: #7ae2aa; /* Slightly darker Mint Green for hover states */
+    --accent: #97fbbf;        /* Mint Green Accent */
+    --accent-hover: #7ae2aa;
+    --bg-light: #ffffff;      /* Pure white background */
     --panel-light: #ffffff;   /* Pure white card backgrounds */
     --border-light: #e2e8f0;  /* Soft borders */
-    --text-dark: #0f172a;     /* Deep slate text */
-    --text-muted: #64748b;    /* Muted text */
+    --text-dark: #000000;     /* Deep black text */
+    --text-muted: #4b5563;    /* Dark slate/gray text for readability */
     --navbar-bg: rgba(255, 255, 255, 0.8);
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -220,8 +220,9 @@ button {
 
 .mobile-nav-link:hover,
 .mobile-nav-link.active {
-    color: var(--primary);
-    padding-left: 5px;
+    color: var(--text-dark);
+    border-left: 3px solid var(--primary);
+    padding-left: 10px;
 }
 
 /* Hamburger active animations */
@@ -300,7 +301,7 @@ button {
 }
 
 .hero-title span {
-    background: linear-gradient(135deg, var(--primary), #a855f7);
+    background: linear-gradient(135deg, #000000 30%, #47d686 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -317,7 +318,7 @@ button {
 
 .btn-cta {
     background: var(--primary);
-    color: white;
+    color: var(--text-dark);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.5px;
@@ -327,13 +328,13 @@ button {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    box-shadow: 0 10px 25px -5px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 10px 25px -5px rgba(151, 251, 191, 0.4);
 }
 
 .btn-cta:hover {
     background: var(--primary-hover);
     transform: translateY(-2px);
-    box-shadow: 0 15px 30px -5px rgba(79, 70, 229, 0.45);
+    box-shadow: 0 15px 30px -5px rgba(151, 251, 191, 0.6);
 }
 
 /* Who We Are */
@@ -354,7 +355,7 @@ button {
     display: flex;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle, rgba(79, 70, 229, 0.04) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(151, 251, 191, 0.1) 0%, transparent 70%);
     padding: 40px;
     border-radius: 20px;
 }
@@ -472,7 +473,7 @@ button {
 .stamp-card:hover {
     transform: scale(1.08);
     border-color: var(--primary);
-    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.08);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
 }
 
 .stamp-card img {
@@ -535,7 +536,7 @@ button {
 
 /* Stats Section (Light Card theme) */
 .stats-section {
-    background: radial-gradient(ellipse at center, rgba(79, 70, 229, 0.03) 0%, transparent 70%);
+    background: radial-gradient(ellipse at center, rgba(151, 251, 191, 0.08) 0%, transparent 70%);
 }
 
 .stats-grid {
@@ -557,7 +558,7 @@ button {
 .stat-card:hover {
     border-color: var(--primary);
     transform: translateY(-5px);
-    box-shadow: 0 15px 30px -10px rgba(79, 70, 229, 0.08);
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05);
 }
 
 .stat-number {
@@ -577,7 +578,7 @@ button {
 
 /* Contact Subsection Card */
 .contact-cta-card {
-    background: linear-gradient(135deg, rgba(79, 70, 229, 0.04), rgba(255, 255, 255, 0.9));
+    background: linear-gradient(135deg, rgba(151, 251, 191, 0.1), rgba(255, 255, 255, 0.9));
     border: 1px solid var(--border-light);
     border-radius: 20px;
     padding: 50px 40px;
@@ -709,7 +710,7 @@ button {
     right: -50px;
     width: 150px;
     height: 150px;
-    background: radial-gradient(circle, rgba(79, 70, 229, 0.06) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(151, 251, 191, 0.15) 0%, transparent 70%);
     border-radius: 50%;
     pointer-events: none;
     transition: var(--transition);
@@ -718,31 +719,31 @@ button {
 .service-card:hover .service-card-bg-glow {
     width: 250px;
     height: 250px;
-    background: radial-gradient(circle, rgba(79, 70, 229, 0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(151, 251, 191, 0.25) 0%, transparent 70%);
 }
 
 .service-card:hover {
     border-color: var(--primary);
     transform: translateY(-5px);
-    box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.06);
 }
 
 .service-header-icon {
     width: 44px;
     height: 44px;
-    background-color: rgba(79, 70, 229, 0.05);
+    background-color: rgba(151, 251, 191, 0.15);
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary);
+    color: var(--text-dark);
     margin-bottom: 25px;
     transition: var(--transition);
 }
 
 .service-card:hover .service-header-icon {
     background-color: var(--primary);
-    color: white;
+    color: var(--text-dark);
 }
 
 .service-card h3 {
@@ -816,9 +817,9 @@ button {
 }
 
 .portfolio-tab-btn.active {
-    color: var(--primary);
+    color: var(--text-dark);
     border-bottom: 3px solid var(--primary);
-    background-color: rgba(79, 70, 229, 0.05);
+    background-color: rgba(151, 251, 191, 0.2);
 }
 
 .portfolio-masonry-grid {
@@ -841,7 +842,7 @@ button {
 
 .work-card:hover {
     transform: scale(1.02);
-    border-color: rgba(79, 70, 229, 0.3);
+    border-color: var(--primary);
     box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.08);
 }
 
@@ -958,12 +959,12 @@ button {
 .contact-icon-wrapper {
     width: 38px;
     height: 38px;
-    background-color: rgba(79, 70, 229, 0.05);
+    background-color: rgba(151, 251, 191, 0.3);
     border-radius: 10px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--primary);
+    color: var(--text-dark);
     flex-shrink: 0;
 }
 
@@ -1014,9 +1015,9 @@ button {
 .social-circle-btn:hover {
     background-color: var(--primary);
     border-color: var(--primary);
-    color: white;
+    color: var(--text-dark);
     transform: translateY(-3px);
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 4px 10px rgba(151, 251, 191, 0.4);
 }
 
 /* Feedback Form Card */
@@ -1064,14 +1065,14 @@ button {
     outline: none;
     border-color: var(--primary);
     background-color: #ffffff;
-    box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.1);
+    box-shadow: 0 0 0 2px rgba(151, 251, 191, 0.3);
 }
 
 .btn-form-submit {
     width: 100%;
     padding: 14px;
     background-color: var(--primary);
-    color: white;
+    color: var(--text-dark);
     font-size: 13px;
     font-weight: 700;
     text-transform: uppercase;
@@ -1081,12 +1082,12 @@ button {
     align-items: center;
     justify-content: center;
     gap: 8px;
-    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+    box-shadow: 0 4px 10px rgba(151, 251, 191, 0.4);
 }
 
 .btn-form-submit:hover {
     background-color: var(--primary-hover);
-    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+    box-shadow: 0 6px 15px rgba(151, 251, 191, 0.5);
 }
 
 .form-success-container {
@@ -1504,7 +1505,7 @@ button {
 
 .filter-menu:hover {
     border-color: var(--primary);
-    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 /* 3. Hero Section Responsive Layout Adjustments */
@@ -1572,7 +1573,7 @@ button {
 
 .stat-card:hover {
     background: rgba(255, 255, 255, 0.8) !important;
-    box-shadow: 0 15px 30px -10px rgba(79, 70, 229, 0.12) !important;
+    box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.05) !important;
 }
 
 .service-card {
@@ -1585,7 +1586,7 @@ button {
 
 .service-card:hover {
     background: rgba(255, 255, 255, 0.85) !important;
-    box-shadow: 0 20px 40px -15px rgba(79, 70, 229, 0.15) !important;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.06) !important;
 }
 
 /* 6. Portfolio Card Cover image scaling */
@@ -1596,27 +1597,27 @@ button {
 
 /* 7. Aligned Custom Filter Menu Tab Style */
 .filter-menu-tabs-style {
-    background: rgba(79, 70, 229, 0.05);
+    background: rgba(151, 251, 191, 0.15);
     border: none;
     border-bottom: 3px solid var(--primary);
     padding: 8px 16px;
     font-size: 13px;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--text-dark);
     border-radius: 6px;
     cursor: pointer;
     outline: none;
     transition: var(--transition);
     appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234f46e5' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23000000' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 12px center;
     padding-right: 32px;
 }
 
 .filter-menu-tabs-style:hover {
-    color: var(--primary-hover);
-    background-color: rgba(79, 70, 229, 0.1);
+    color: var(--text-dark);
+    background-color: rgba(151, 251, 191, 0.3);
 }
 
 /* 8. About page Hero section styling */

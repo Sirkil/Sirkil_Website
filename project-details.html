@@ -12,14 +12,14 @@
 
   <style>
     :root {
-      --primary: #4f46e5;       /* Indigo */
-      --primary-hover: #4338ca;
-      --accent: #d97706;        /* Amber */
-      --bg-light: #f8fafc;      /* Soft light-gray background */
+      --primary: #97fbbf;       /* Sirkil Mint Green */
+      --primary-hover: #7ae2aa; /* Slightly darker Mint Green for hover states */
+      --accent: #97fbbf;        /* Mint Green Accent */
+      --bg-light: #ffffff;      /* Pure white background */
       --panel-light: #ffffff;   /* Pure white card backgrounds */
       --border-light: #e2e8f0;  /* Soft borders */
-      --text-dark: #0f172a;     /* Deep slate text */
-      --text-muted: #64748b;    /* Muted text */
+      --text-dark: #000000;     /* Deep black text */
+      --text-muted: #4b5563;    /* Dark slate/gray text for readability */
       --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
@@ -104,7 +104,7 @@
       font-weight: 800;
       text-transform: uppercase;
       letter-spacing: 1.5px;
-      color: var(--primary);
+      color: var(--text-dark);
       margin-bottom: 10px;
       border-left: 3px solid var(--primary);
       padding-left: 10px;
@@ -206,7 +206,7 @@
 
     .prev:hover, .next:hover {
       background-color: var(--primary);
-      color: white;
+      color: var(--text-dark);
       border-color: var(--primary);
     }
 
