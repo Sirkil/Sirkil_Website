@@ -1675,5 +1675,28 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-18",
+    "title": "EnteroZone Aswan",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Opella",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/EnteroZone%20Aswan/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/EnteroZone%20Aswan/2.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/EnteroZone%20Aswan/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/EnteroZone%20Aswan/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/EnteroZone%20Aswan/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/EnteroZone%20Aswan/6.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/EnteroZone%20Aswan/7.jpg"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
