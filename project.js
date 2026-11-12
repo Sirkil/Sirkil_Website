@@ -1775,5 +1775,30 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-22",
+    "title": "Danone Partners For Life",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Danone",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/6.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/7.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/8.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Partners%20For%20Life/9.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
