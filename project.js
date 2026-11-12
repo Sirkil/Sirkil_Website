@@ -1800,5 +1800,36 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-23",
+    "title": "Bebelac Legacy Reborn",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Danone",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/6.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/7.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/8.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/9.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/10.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/11.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/12.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/13.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/14.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Bebelac%20Legacy%20Reborn/15.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
