@@ -1490,5 +1490,30 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": true
+  },
+  {
+    "id": "platform-12",
+    "title": "Haleon Partners Club",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Haleon",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Haleon%20Partners%20Club/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Haleon%20Partners%20Club/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Haleon%20Partners%20Club/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Haleon%20Partners%20Club/4.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Haleon%20Partners%20Club/5.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Haleon%20Partners%20Club/6.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Haleon%20Partners%20Club/7.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Haleon%20Partners%20Club/8.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Haleon%20Partners%20Club/9.jpg"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
