@@ -1747,5 +1747,33 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-21",
+    "title": "Sanofi Vaccine Our Africa",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Sanofi",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/6.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/7.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/8.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/9.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/10.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/11.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Vaccine%20Our%20Africa/12.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
