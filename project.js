@@ -1698,5 +1698,29 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-19",
+    "title": "Multiple Myeloma",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Sanofi",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Multiple%20Myeloma/2.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/6.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/7.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Multiple%20Myeloma/8.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
