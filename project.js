@@ -1623,5 +1623,34 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-16",
+    "title": "Telfast GAC Jeddah",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Opella",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/2.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Telfast%20GAC%20Jeddah/3.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Telfast%20GAC%20Jeddah/4.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Telfast%20GAC%20Jeddah/5.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/6.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Telfast%20GAC%20Jeddah/7.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Telfast%20GAC%20Jeddah/8.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/9.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/10.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/11.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Telfast%20GAC%20Jeddah/12.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Telfast%20GAC%20Jeddah/13.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
