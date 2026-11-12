@@ -8,6 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://raw.githubusercontent.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
@@ -331,7 +332,7 @@
           const hasVid = !!getVideoUrl(p) || !!p.hasVideo;
 
           item.innerHTML = `
-            <img src="${p.thumbnail}" alt="${p.title}" loading="lazy">
+            <img src="${p.thumbnail}" alt="${p.title}" loading="lazy" decoding="async">
             <div class="portfolio-overlay">
               <span class="portfolio-category-text">${p.category}</span>
               <h3 class="portfolio-title-text">${p.title}</h3>
@@ -379,7 +380,7 @@
                   video.play().catch(()=>{});
                 } else {
                   item.innerHTML = `
-                    <img src="${p.thumbnail}" alt="${p.title}">
+                    <img src="${p.thumbnail}" alt="${p.title}" loading="lazy" decoding="async">
                     <div class="portfolio-overlay">
                       <span class="portfolio-category-text">${p.category}</span>
                       <h3 class="portfolio-title-text">${p.title}</h3>

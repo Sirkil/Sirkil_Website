@@ -7,6 +7,8 @@
     
     <!-- Design Stylesheet -->
     <link rel="stylesheet" href="main.css">
+    <link rel="preload" as="image" href="assets/sirkil_showreel_poster.jpg" fetchpriority="high">
+    <link rel="preconnect" href="https://raw.githubusercontent.com">
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -126,6 +128,7 @@
                     entries.forEach(entry => {
                         if (entry.isIntersecting) {
                             setVisible(true);
+                            observer.unobserve(entry.target);
                         }
                     });
                 }, { threshold: 0.05 });
@@ -163,6 +166,7 @@
             const [filterCategory, setFilterCategory] = useState('All');
             const [sortBy, setSortBy] = useState('default');
             const [scrolled, setScrolled] = useState(false);
+            const avoidBackgroundVideo = window.matchMedia('(prefers-reduced-motion: reduce)').matches || navigator.connection?.saveData;
             
             // Contact form inputs
             const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
@@ -184,7 +188,7 @@
                         setScrolled(false);
                     }
                 };
-                window.addEventListener('scroll', handleScroll);
+                window.addEventListener('scroll', handleScroll, { passive: true });
                 return () => window.removeEventListener('scroll', handleScroll);
             }, []);
 
@@ -261,7 +265,7 @@
                     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
                         {/* Right aligned logo */}
                         <a href="#home" onClick={() => navigateTo('home')} className="nav-logo">
-                            <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" />
+                            <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" width="625" height="263" decoding="async" />
                         </a>
 
                         {/* Left aligned pages list */}
@@ -307,9 +311,11 @@
                             <div className="page-enter">
                                 {/* Hero Loop Video Section */}
                                 <section className="hero-section">
-                                    <video className="hero-video" autoPlay loop muted playsInline>
-                                        <source src="assets/sirkil_showreel.mp4" type="video/mp4" />
-                                    </video>
+                                    {!avoidBackgroundVideo && (
+                                        <video className="hero-video" autoPlay loop muted playsInline preload="metadata" poster="assets/sirkil_showreel_poster.jpg">
+                                            <source src="assets/sirkil_showreel_web.mp4" type="video/mp4" />
+                                        </video>
+                                    )}
                                     <div className="hero-overlay">
                                         <div className="hero-content">
                                             <h1 className="hero-title">CREATING <span>UNFORGETTABLE</span> ON-GROUND EXPERIENCES</h1>
@@ -327,7 +333,7 @@
                                     <section className="section">
                                         <div className="whoweare-grid">
                                             <div className="whoweare-logo-box">
-                                                <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" />
+                                                <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" width="625" height="263" loading="lazy" decoding="async" />
                                             </div>
                                             <div className="whoweare-content">
                                                 <h2>WHO WE <span>ARE</span></h2>
@@ -355,7 +361,8 @@
                                                             src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`} 
                                                             onError={(e) => { e.target.style.display = 'none'; }} 
                                                             alt="" 
-                                                            loading="lazy" 
+                                                            loading="lazy"
+                                                            decoding="async"
                                                         />
                                                     ))}
                                                     {Array.from({ length: 50 }, (_, i) => i + 1).map(i => (
@@ -364,7 +371,8 @@
                                                             src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`} 
                                                             onError={(e) => { e.target.style.display = 'none'; }} 
                                                             alt="" 
-                                                            loading="lazy" 
+                                                            loading="lazy"
+                                                            decoding="async"
                                                         />
                                                     ))}
                                                 </div>
@@ -380,7 +388,8 @@
                                                             src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events%20Stamps/Asset%20${i}.png`} 
                                                             onError={(e) => { e.target.parentNode.style.display = 'none'; }} 
                                                             alt="" 
-                                                            loading="lazy" 
+                                                            loading="lazy"
+                                                            decoding="async"
                                                         />
                                                     </div>
                                                 ))}
@@ -407,7 +416,7 @@
                                             {latestProjects.map(p => (
                                                 <div key={p.id} className="work-card animate-fadeIn" onClick={() => setSelectedProject(p)}>
                                                     {p.thumbnail ? (
-                                                        <img src={p.thumbnail} alt={p.title} className="work-card-img" />
+                                                        <img src={p.thumbnail} alt={p.title} className="work-card-img" loading="lazy" decoding="async" />
                                                     ) : (
                                                         <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-500">
                                                             <ImageIcon size={32} />
@@ -674,7 +683,7 @@
                                         {filteredProjects.map((p) => (
                                             <div key={p.id} className="work-card animate-fadeIn" onClick={() => setSelectedProject(p)}>
                                                 {p.thumbnail ? (
-                                                    <img src={p.thumbnail} alt={p.title} className="work-card-img" />
+                                                    <img src={p.thumbnail} alt={p.title} className="work-card-img" loading="lazy" decoding="async" />
                                                 ) : (
                                                     <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-400">
                                                         <ImageIcon size={32} />
@@ -871,7 +880,7 @@
 
                     {/* FOOTER */}
                     <footer className="footer">
-                        <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" className="footer-logo" />
+                        <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" className="footer-logo" width="625" height="263" loading="lazy" decoding="async" />
                         <p className="footer-copy">&copy; {new Date().getFullYear()} Sirkil Experiential Agency. All rights reserved.</p>
                     </footer>
 
@@ -919,7 +928,7 @@
                                 <div className="modal-slider-container mb-6">
                                     <div className="modal-slider-box">
                                         <div className="modal-slide">
-                                            <img src={slides[currentSlide]} alt="" />
+                                            <img src={slides[currentSlide]} alt="" decoding="async" />
                                         </div>
                                         {slides.length > 1 && (
                                             <>

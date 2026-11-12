@@ -248,6 +248,7 @@ button {
     width: 100%;
     height: 100vh;
     overflow: hidden;
+    background: #0f172a url("assets/sirkil_showreel_poster.jpg") center / cover no-repeat;
 }
 
 .hero-video {
@@ -1487,6 +1488,18 @@ button {
 .fade-in-section.is-visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .carousel-track, .page-enter {
+        animation: none;
+    }
+
+    .fade-in-section, .page-enter {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
 }
 
 /* 2. Portfolio Sorting Menu Styles */

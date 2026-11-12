@@ -8,6 +8,7 @@
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://raw.githubusercontent.com">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 
   <style>
@@ -336,7 +337,7 @@
                   <div class="slideshow-container">
                     ${slideshowImages.map((img, i) => `
                       <div class="slide" style="${i === 0 ? "display:flex" : ""}">
-                        <img src="${img}" alt="">
+                        <img src="${img}" alt="" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async">
                       </div>
                     `).join("")}
                     ${slideshowImages.length > 1 ? `
@@ -357,7 +358,7 @@
               <!-- Video (if exists) -->
               ${videoUrl ? `
                 <div class="media-block">
-                  <video controls>
+                  <video controls preload="none">
                     <source src="${videoUrl}" type="video/mp4">
                     Your browser does not support the video tag.
                   </video>
@@ -367,7 +368,7 @@
               <!-- Thumbnail (show only if slideshow is empty) -->
               ${(slideshowImages.length === 0 && project.thumbnail) ? `
                 <div class="media-block">
-                  <img src="${project.thumbnail}" alt="${project.title}">
+                  <img src="${project.thumbnail}" alt="${project.title}" decoding="async" fetchpriority="high">
                 </div>
               ` : ''}
 
