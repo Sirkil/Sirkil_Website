@@ -1722,5 +1722,30 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-20",
+    "title": "Danone Cycle Meeting Aswan",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Danone",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/6.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/7.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/8.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Danone%20Cycle%20Meeting%20Aswan/9.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
