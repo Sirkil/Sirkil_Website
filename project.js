@@ -1589,5 +1589,39 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": true
+  },
+  {
+    "id": "platform-15",
+    "title": "Sanofi Cycle Meeting Alex",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Sanofi",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/5.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Sanofi%20Cycle%20Meeting%20Alex/6.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Sanofi%20Cycle%20Meeting%20Alex/7.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/8.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/9.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/10.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/11.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Sanofi%20Cycle%20Meeting%20Alex/12.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/13.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/14.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Sanofi%20Cycle%20Meeting%20Alex/15.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/16.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/17.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Sanofi%20Cycle%20Meeting%20Alex/18.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
