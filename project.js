@@ -1515,5 +1515,40 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-13",
+    "title": "Africa Rare Diesease Summit",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Sanofi",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/3.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/4.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/5.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/6.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/7.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/8.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/9.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/10.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/11.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/12.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/13.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/14.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/15.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/16.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Africa%20Rare%20Diesease%20Summit/17.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/18.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Africa%20Rare%20Diesease%20Summit/19.jpg"
+    ],
+    "video": "",
+    "showInLatest": true
   }
 ];
