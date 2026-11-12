@@ -1,24 +1,5 @@
 const projectsData = [
   {
-    "id": "branding2",
-    "title": "Cammoun",
-    "category": "Branding",
-    "country": "KSA",
-    "client": "",
-    "industry": "",
-    "rate": "",
-    "date": "",
-    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/1.png",
-    "hasVideo": false,
-    "description": "",
-    "slideshow": [
-      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/2.png",
-      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/3.png",
-      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/4.png"
-    ],
-    "video": ""
-  },
-  {
     "id": "branding3",
     "title": "Babel Ltd.",
     "category": "Branding",
