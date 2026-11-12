@@ -1652,5 +1652,28 @@ const projectsData = [
     ],
     "video": "",
     "showInLatest": false
+  },
+  {
+    "id": "platform-17",
+    "title": "Spimaco One",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Spimaco",
+    "industry": "Pharmaceutical",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Spimaco%20One/1.webp",
+    "hasVideo": false,
+    "description": "",
+    "slideshow": [
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Spimaco%20One/2.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Spimaco%20One/3.webp",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Spimaco%20One/4.jpg",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Spimaco%20One/5.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Spimaco%20One/6.webp",
+      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events/Spimaco%20One/7.webp"
+    ],
+    "video": "",
+    "showInLatest": false
   }
 ];
