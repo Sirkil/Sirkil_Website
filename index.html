@@ -4,17 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sirkil</title>
-    
+
     <!-- Design Stylesheet -->
-    <link rel="stylesheet" href="main.css">
+    <link rel="stylesheet" href="main.css?v=20261112.4">
     <link rel="preload" as="image" href="assets/sirkil_showreel_poster.jpg" fetchpriority="high">
     <link rel="preconnect" href="https://raw.githubusercontent.com">
-    
+
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
     <!-- React & Babel Standalone -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script type="importmap">
@@ -38,9 +38,9 @@
     <script type="text/babel" data-type="module">
         import React, { useState, useEffect, useMemo, useRef } from 'react';
         import { createRoot } from 'react-dom/client';
-        import { 
-            Film, Image as ImageIcon, ArrowRight, Mail, Phone, 
-            MapPin, Clock, ArrowLeft, Check, ChevronLeft, 
+        import {
+            Film, Image as ImageIcon, ArrowRight, Mail, Phone,
+            MapPin, Clock, ArrowLeft, Check, ChevronLeft,
             ChevronRight, Menu, X, ArrowUpRight, Award, Flame, Calendar,
             Facebook, Instagram, Linkedin, ArrowDown
         } from 'lucide-react';
@@ -60,12 +60,12 @@
         // ---------------------------------------------------------
         function TypewriterText({ text }) {
             const [displayText, setDisplayText] = useState('');
-            
+
             useEffect(() => {
                 let currentText = '';
                 let index = 0;
                 setDisplayText('');
-                
+
                 const interval = setInterval(() => {
                     if (index < text.length) {
                         currentText += text.charAt(index);
@@ -75,10 +75,10 @@
                         clearInterval(interval);
                     }
                 }, 85); // Speed: 85ms per character
-                
+
                 return () => clearInterval(interval);
             }, [text]);
-            
+
             return (
                 <span className="typewriter-cursor">{displayText}</span>
             );
@@ -89,31 +89,30 @@
         // ---------------------------------------------------------
         function AnimatedCounter({ target, duration = 2000, suffix = "" }) {
             const [count, setCount] = useState(0);
-            
+            const counterRef = useRef(null);
+
             useEffect(() => {
-                let start = 0;
                 const end = parseInt(target, 10);
-                if (start === end) return;
-                
-                const totalMs = parseInt(duration, 10);
-                const steps = 40; // Smooth updates
-                const stepSize = Math.ceil(end / steps);
-                const stepInterval = totalMs / steps;
-                
-                const timer = setInterval(() => {
-                    start += stepSize;
-                    if (start >= end) {
-                        clearInterval(timer);
+                let frame;
+                const observer = new IntersectionObserver(entries => {
+                    if (!entries[0].isIntersecting) return;
+                    observer.disconnect();
+                    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
                         setCount(end);
-                    } else {
-                        setCount(start);
+                        return;
                     }
-                }, stepInterval);
-                
-                return () => clearInterval(timer);
+                    const started = performance.now();
+                    const tick = now => {
+                        const progress = Math.min((now - started) / duration, 1);
+                        setCount(Math.round(end * (1 - Math.pow(1 - progress, 3))));
+                        if (progress < 1) frame = requestAnimationFrame(tick);
+                    };
+                    frame = requestAnimationFrame(tick);
+                });
+                observer.observe(counterRef.current);
+                return () => { observer.disconnect(); cancelAnimationFrame(frame); };
             }, [target, duration]);
-            
-            return <span>{count}{suffix}</span>;
+            return <span ref={counterRef} aria-label={`${target}${suffix}`}><span aria-hidden="true">{count}{suffix}</span></span>;
         }
 
         // ---------------------------------------------------------
@@ -122,7 +121,7 @@
         function FadeInSection(props) {
             const [isVisible, setVisible] = useState(false);
             const domRef = useRef();
-            
+
             useEffect(() => {
                 const observer = new IntersectionObserver(entries => {
                     entries.forEach(entry => {
@@ -132,12 +131,12 @@
                         }
                     });
                 }, { threshold: 0.05 });
-                
+
                 const currentEl = domRef.current;
                 if (currentEl) {
                     observer.observe(currentEl);
                 }
-                
+
                 return () => {
                     if (currentEl) {
                         observer.unobserve(currentEl);
@@ -167,10 +166,10 @@
             const [sortBy, setSortBy] = useState('default');
             const [scrolled, setScrolled] = useState(false);
             const avoidBackgroundVideo = window.matchMedia('(prefers-reduced-motion: reduce)').matches || navigator.connection?.saveData;
-            
+
             // Contact form inputs
             const [formState, setFormState] = useState({ name: '', email: '', subject: '', message: '' });
-            const [formStatus, setFormStatus] = useState('idle'); // idle, submitting, submitted
+            const [formStatus, setFormStatus] = useState('idle'); // idle or email-handoff
 
             // Load initial projects list from global project.js variable
             const hostedProjects = useMemo(() => {
@@ -207,7 +206,7 @@
                 };
 
                 window.addEventListener('hashchange', handleHashChange);
-                
+
                 // Initial page load hash check
                 if (window.location.hash) {
                     handleHashChange();
@@ -236,8 +235,8 @@
 
             // Filtered projects for portfolio grid
             const filteredProjects = useMemo(() => {
-                let list = filterCategory === 'All' 
-                    ? hostedProjects 
+                let list = filterCategory === 'All'
+                    ? hostedProjects
                     : hostedProjects.filter(p => p.category === filterCategory);
 
                 if (sortBy === 'highest') {
@@ -248,19 +247,17 @@
                 return list;
             }, [hostedProjects, filterCategory, sortBy]);
 
-            // Form Submit handler
+            // This static site hands off to the visitor's email app; it does not claim delivery.
             const handleFormSubmit = (e) => {
                 e.preventDefault();
-                setFormStatus('submitting');
-                setTimeout(() => {
-                    setFormStatus('submitted');
-                    setFormState({ name: '', email: '', subject: '', message: '' });
-                }, 1500);
+                const body = `Name: ${formState.name}\nReply to: ${formState.email}\n\n${formState.message}`;
+                window.location.href = `mailto:info@sirkil.com?subject=${encodeURIComponent(formState.subject)}&body=${encodeURIComponent(body)}`;
+                setFormStatus('email-handoff');
             };
 
             return (
                 <div className="site-wrapper flex flex-col min-h-screen">
-                    
+
                     {/* NAVIGATION BAR */}
                     <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
                         {/* Right aligned logo */}
@@ -278,7 +275,7 @@
                         </ul>
 
                         {/* Hamburger icon */}
-                        <button 
+                        <button
                             className={`hamburger ${mobileMenuOpen ? 'open' : ''}`}
                             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                         >
@@ -289,7 +286,7 @@
                     </nav>
 
                     {/* Mobile Sidebar overlay menu */}
-                    <div 
+                    <div
                         className={`mobile-nav-overlay ${mobileMenuOpen ? 'open' : ''}`}
                         onClick={() => setMobileMenuOpen(false)}
                     />
@@ -305,7 +302,7 @@
 
                     {/* MAIN VIEWS */}
                     <div className="flex-grow pt-[75px]">
-                        
+
                         {/* VIEW: HOME */}
                         {activePage === 'home' && (
                             <div className="page-enter">
@@ -320,9 +317,9 @@
                                         <div className="hero-content">
                                             <h1 className="hero-title">CREATING <span>UNFORGETTABLE</span> ON-GROUND EXPERIENCES</h1>
                                             <p className="hero-subtitle">We craft premium concepts, scenic production, brand identity, and end-to-end events that engage communities and elevate brand market value.</p>
-                                            <button onClick={() => navigateTo('portfolio')} className="btn-cta">
+                                            <button type="button" onClick={() => navigateTo('portfolio')} className="hero-explore">
                                                 <span>Explore Our Work</span>
-                                                <ArrowRight size={14} />
+                                                <ArrowDown size={22} className="hero-explore-arrow" aria-hidden="true" />
                                             </button>
                                         </div>
                                     </div>
@@ -356,21 +353,21 @@
                                                 <div className="carousel-track">
                                                     {/* Duplicate items for infinite scroll */}
                                                     {Array.from({ length: 50 }, (_, i) => i + 1).map(i => (
-                                                        <img 
-                                                            key={`client1-${i}`} 
-                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`} 
-                                                            onError={(e) => { e.target.style.display = 'none'; }} 
-                                                            alt="" 
+                                                        <img
+                                                            key={`client1-${i}`}
+                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`}
+                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                            alt=""
                                                             loading="lazy"
                                                             decoding="async"
                                                         />
                                                     ))}
                                                     {Array.from({ length: 50 }, (_, i) => i + 1).map(i => (
-                                                        <img 
-                                                            key={`client2-${i}`} 
-                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`} 
-                                                            onError={(e) => { e.target.style.display = 'none'; }} 
-                                                            alt="" 
+                                                        <img
+                                                            key={`client2-${i}`}
+                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Logos%20HQ/Page%20${i}.png`}
+                                                            onError={(e) => { e.target.style.display = 'none'; }}
+                                                            alt=""
                                                             loading="lazy"
                                                             decoding="async"
                                                         />
@@ -384,10 +381,10 @@
                                             <div className="stamps-grid">
                                                 {Array.from({ length: 30 }, (_, i) => i + 1).map(i => (
                                                     <div key={i} className="stamp-card" title={`Event Stamp #${i}`}>
-                                                        <img 
-                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events%20Stamps/Asset%20${i}.png`} 
-                                                            onError={(e) => { e.target.parentNode.style.display = 'none'; }} 
-                                                            alt="" 
+                                                        <img
+                                                            src={`https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Events%20Stamps/Asset%20${i}.png`}
+                                                            onError={(e) => { e.target.parentNode.style.display = 'none'; }}
+                                                            alt=""
                                                             loading="lazy"
                                                             decoding="async"
                                                         />
@@ -440,7 +437,7 @@
 
                                 {/* Section 5: Stats */}
                                 <FadeInSection>
-                                    <section className="section stats-section">
+                                    <section className="section stats-section retained-section">
                                         <div className="stats-grid">
                                             <div className="stat-card">
                                                 <p className="stat-number"><AnimatedCounter target={500} suffix="+" /></p>
@@ -464,10 +461,10 @@
 
                                 {/* Section 6: Contact Subsection */}
                                 <FadeInSection>
-                                    <section className="section">
+                                    <section className="section retained-section">
                                         <div className="contact-cta-card">
-                                            <h3>Ready to Create Something Extraordinary?</h3>
-                                            <p>Contact our project management team today and let's craft a physical experience that makes an impact.</p>
+                                            <h3>Let’s create something worth experiencing.</h3>
+                                            <p>Tell us what you have in mind. We’ll help bring it to life.</p>
                                             <button onClick={() => navigateTo('contact')} className="btn-cta text-[11px]">
                                                 <span>Get in Touch</span>
                                                 <ArrowRight size={14} />
@@ -514,12 +511,12 @@
 
                                             <div className="about-info-panel">
                                                 <h3 className="about-info-title">Agency Office Info</h3>
-                                                
+
                                                 <div className="info-item">
                                                     <p className="info-item-label">Main Address</p>
                                                     <p className="info-item-value">Family Park, Suez Road, Cairo, Egypt</p>
                                                 </div>
-                                                
+
                                                 <div className="info-item">
                                                     <p className="info-item-label">Hours of Work</p>
                                                     <p className="info-item-value">Sunday – Thursday<br />9:00 AM – 6:00 PM</p>
@@ -527,16 +524,16 @@
 
                                                 <div className="info-item">
                                                     <p className="info-item-label">General Contact</p>
-                                                    <p className="info-item-value">Email: info@sirkil.com<br />Phone: +20 2 9876 5432</p>
+                                                    <p className="info-item-value">Email: info@sirkil.com<br />Phone: <a href="tel:+201097900044">+20 109 790 0044</a></p>
                                                 </div>
                                             </div>
                                         </div>
 
                                         <div className="about-map-block">
-                                            <iframe 
-                                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3451.1352467268875!2d31.603387876274488!3d30.118944515024765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1458189679177a45%3A0xe96349edb879ec2f!2sFamily%20Park!5e0!3m2!1sen!2seg!4v1700000000000!5m2!1sen!2seg" 
-                                                allowFullScreen="" 
-                                                loading="lazy" 
+                                            <iframe
+                                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3451.1352467268875!2d31.603387876274488!3d30.118944515024765!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x1458189679177a45%3A0xe96349edb879ec2f!2sFamily%20Park!5e0!3m2!1sen!2seg!4v1700000000000!5m2!1sen!2seg"
+                                                allowFullScreen=""
+                                                loading="lazy"
                                             />
                                         </div>
                                     </FadeInSection>
@@ -546,17 +543,16 @@
 
                         {/* VIEW: SERVICES */}
                         {activePage === 'services' && (
-                            <div className="page-enter section">
+                            <div className="page-enter section retained-section">
                                 <FadeInSection>
                                     <div className="max-w-2xl mb-12">
-                                        <h2 className="text-3xl font-extrabold uppercase mb-3">OUR PRODUCTION SERVICES</h2>
+                                        <h1 className="text-3xl font-extrabold mb-4">What we do.</h1>
                                         <p className="text-slate-400 text-sm">We provide end-to-end expertise across four distinct marketing and event production sectors.</p>
                                     </div>
 
                                     <div className="services-grid">
                                         {/* Service 1 */}
-                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'End to end Event Organization')}>
-                                            <div className="service-card-bg-glow" />
+                                        <a href="#portfolio" className="service-card" onClick={() => navigateTo('portfolio', 'End to end Event Organization')}>
                                             <div>
                                                 <div className="service-header-icon">
                                                     <Calendar size={22} />
@@ -568,11 +564,10 @@
                                                 <span>Explore Event Projects</span>
                                                 <ArrowRight size={12} />
                                             </div>
-                                        </div>
+                                        </a>
 
                                         {/* Service 2 */}
-                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'Concepts & Production')}>
-                                            <div className="service-card-bg-glow" />
+                                        <a href="#portfolio" className="service-card" onClick={() => navigateTo('portfolio', 'Concepts & Production')}>
                                             <div>
                                                 <div className="service-header-icon">
                                                     <Flame size={22} />
@@ -584,11 +579,10 @@
                                                 <span>Explore Production Projects</span>
                                                 <ArrowRight size={12} />
                                             </div>
-                                        </div>
+                                        </a>
 
                                         {/* Service 3 */}
-                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'On Ground Activations')}>
-                                            <div className="service-card-bg-glow" />
+                                        <a href="#portfolio" className="service-card" onClick={() => navigateTo('portfolio', 'On Ground Activations')}>
                                             <div>
                                                 <div className="service-header-icon">
                                                     <Award size={22} />
@@ -600,11 +594,10 @@
                                                 <span>Explore Activation Projects</span>
                                                 <ArrowRight size={12} />
                                             </div>
-                                        </div>
+                                        </a>
 
                                         {/* Service 4 */}
-                                        <div className="service-card" onClick={() => navigateTo('portfolio', 'Branding')}>
-                                            <div className="service-card-bg-glow" />
+                                        <a href="#portfolio" className="service-card" onClick={() => navigateTo('portfolio', 'Branding')}>
                                             <div>
                                                 <div className="service-header-icon">
                                                     <ImageIcon size={22} />
@@ -616,7 +609,7 @@
                                                 <span>Explore Branding Projects</span>
                                                 <ArrowRight size={12} />
                                             </div>
-                                        </div>
+                                        </a>
                                     </div>
                                 </FadeInSection>
                             </div>
@@ -631,43 +624,43 @@
                                             <h2 className="text-3xl font-extrabold uppercase">PORTFOLIO</h2>
                                             <p className="text-slate-400 text-sm mt-1">Browse our complete archive of events, branding, and activation projects.</p>
                                         </div>
-                                        
+
                                         {/* Category Filter Tabs with Aligned Sort Select */}
                                         <div className="portfolio-tabs-bar flex justify-between items-center w-full flex-wrap gap-4">
                                             <div className="flex flex-wrap gap-2">
-                                                <button 
-                                                    onClick={() => setFilterCategory('All')} 
+                                                <button
+                                                    onClick={() => setFilterCategory('All')}
                                                     className={`portfolio-tab-btn ${filterCategory === 'All' ? 'active' : ''}`}
                                                 >
                                                     ALL WORK
                                                 </button>
-                                                <button 
-                                                    onClick={() => setFilterCategory('End to end Event Organization')} 
+                                                <button
+                                                    onClick={() => setFilterCategory('End to end Event Organization')}
                                                     className={`portfolio-tab-btn ${filterCategory === 'End to end Event Organization' ? 'active' : ''}`}
                                                 >
                                                     EVENTS
                                                 </button>
-                                                <button 
-                                                    onClick={() => setFilterCategory('Concepts & Production')} 
+                                                <button
+                                                    onClick={() => setFilterCategory('Concepts & Production')}
                                                     className={`portfolio-tab-btn ${filterCategory === 'Concepts & Production' ? 'active' : ''}`}
                                                 >
                                                     CONCEPTS & PRODUCTION
                                                 </button>
-                                                <button 
-                                                    onClick={() => setFilterCategory('On Ground Activations')} 
+                                                <button
+                                                    onClick={() => setFilterCategory('On Ground Activations')}
                                                     className={`portfolio-tab-btn ${filterCategory === 'On Ground Activations' ? 'active' : ''}`}
                                                 >
                                                     ACTIVATIONS
                                                 </button>
-                                                <button 
-                                                    onClick={() => setFilterCategory('Branding')} 
+                                                <button
+                                                    onClick={() => setFilterCategory('Branding')}
                                                     className={`portfolio-tab-btn ${filterCategory === 'Branding' ? 'active' : ''}`}
                                                 >
                                                     BRANDING
                                                 </button>
                                             </div>
-                                            
-                                            <select 
+
+                                            <select
                                                 value={sortBy}
                                                 onChange={(e) => setSortBy(e.target.value)}
                                                 className="filter-menu-tabs-style"
@@ -713,12 +706,12 @@
 
                         {/* VIEW: CONTACT */}
                         {activePage === 'contact' && (
-                            <div className="page-enter section">
+                            <div className="page-enter section retained-section">
                                 <FadeInSection>
                                     <div className="contact-layout-grid">
                                         <div className="contact-details-box">
                                             <div className="contact-card-info">
-                                                <h3 className="contact-details-title">GET IN TOUCH</h3>
+                                                <h1 className="contact-details-title">Let’s talk.</h1>
                                                 <div className="contact-info-list">
                                                     <div className="contact-info-block">
                                                         <div className="contact-icon-wrapper">
@@ -735,7 +728,7 @@
                                                         </div>
                                                         <div className="contact-info-text">
                                                             <h4>Email Support</h4>
-                                                            <p>info@sirkil.com<br />sales@sirkil.com</p>
+                                                            <p><a href="mailto:info@sirkil.com">info@sirkil.com</a><br /><a href="mailto:sales@sirkil.com">sales@sirkil.com</a></p>
                                                         </div>
                                                     </div>
                                                     <div className="contact-info-block">
@@ -744,7 +737,7 @@
                                                         </div>
                                                         <div className="contact-info-text">
                                                             <h4>Phone Line</h4>
-                                                            <p>+20 2 9876 5432<br />+966 11 234 5678</p>
+                                                            <p><a href="tel:+201097900044">+20 109 790 0044</a></p>
                                                         </div>
                                                     </div>
                                                     <div className="contact-info-block">
@@ -759,109 +752,68 @@
                                                 </div>
                                             </div>
 
-                                            <div>
-                                                <h4 className="socials-title">Follow Sirkil</h4>
-                                                <div className="socials-flex">
-                                                    <a href="#" className="social-circle-btn" aria-label="Facebook">
-                                                        <Facebook size={16} />
-                                                    </a>
-                                                    <a href="#" className="social-circle-btn" aria-label="Instagram">
-                                                        <Instagram size={16} />
-                                                    </a>
-                                                    <a href="#" className="social-circle-btn" aria-label="LinkedIn">
-                                                        <Linkedin size={16} />
-                                                    </a>
-                                                </div>
                                             </div>
-                                        </div>
 
                                         {/* Feedback form */}
                                         <div className="contact-form-panel">
-                                            {formStatus === 'submitted' ? (
-                                                <div className="form-success-container flex flex-col items-center justify-center space-y-4">
-                                                    <div className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-2">
-                                                        <Check size={32} />
-                                                    </div>
-                                                    <h3 className="text-lg font-bold text-slate-900">Thank You!</h3>
-                                                    <p className="text-slate-500 text-xs leading-relaxed max-w-sm">
-                                                        Your contact message has been sent successfully. A project consultant will review your message and reply via email within 24 hours.
-                                                    </p>
-                                                    <button 
-                                                        onClick={() => setFormStatus('idle')} 
-                                                        className="px-5 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg text-white transition mt-4"
-                                                    >
-                                                        Send Another Message
-                                                    </button>
-                                                </div>
-                                            ) : (
                                                 <form onSubmit={handleFormSubmit}>
-                                                    <h3 className="text-lg font-bold mb-6 text-slate-800">Send us a Message</h3>
-                                                    
+                                                    <h2 className="contact-form-title">Tell us about your project.</h2>
+
+
                                                     <div className="form-group-grid">
                                                         <div className="form-group">
-                                                            <label>Your Name</label>
-                                                            <input 
-                                                                type="text" 
+                                                            <label htmlFor="contact-name">Your Name</label>
+                                                            <input
+                                                                type="text"
                                                                 required
-                                                                value={formState.name}
+                                                                id="contact-name" name="name" autoComplete="name" value={formState.name}
                                                                 onChange={e => setFormState({...formState, name: e.target.value})}
-                                                                className="form-input-field" 
-                                                                placeholder="e.g. John Doe"
+                                                                className="form-input-field"
+
                                                             />
                                                         </div>
                                                         <div className="form-group">
-                                                            <label>Email Address</label>
-                                                            <input 
-                                                                type="email" 
+                                                            <label htmlFor="contact-email">Email Address</label>
+                                                            <input
+                                                                type="email"
                                                                 required
-                                                                value={formState.email}
+                                                                id="contact-email" name="email" autoComplete="email" value={formState.email}
                                                                 onChange={e => setFormState({...formState, email: e.target.value})}
-                                                                className="form-input-field" 
-                                                                placeholder="john@example.com"
+                                                                className="form-input-field"
+
                                                             />
                                                         </div>
                                                     </div>
 
                                                     <div className="form-group">
-                                                        <label>Subject</label>
-                                                        <input 
-                                                            type="text" 
+                                                        <label htmlFor="contact-subject">Subject</label>
+                                                        <input
+                                                            type="text"
                                                             required
-                                                            value={formState.subject}
+                                                            id="contact-subject" name="subject" value={formState.subject}
                                                             onChange={e => setFormState({...formState, subject: e.target.value})}
-                                                            className="form-input-field" 
-                                                            placeholder="How can we help you?"
+                                                            className="form-input-field"
+
                                                         />
                                                     </div>
 
                                                     <div className="form-group">
-                                                        <label>Message Details</label>
-                                                        <textarea 
-                                                            rows="5" 
+                                                        <label htmlFor="contact-message">Message Details</label>
+                                                        <textarea
+                                                            rows="5"
                                                             required
-                                                            value={formState.message}
+                                                            id="contact-message" name="message" value={formState.message}
                                                             onChange={e => setFormState({...formState, message: e.target.value})}
-                                                            className="form-input-field" 
-                                                            placeholder="Describe your event or branding requirements..."
+                                                            className="form-input-field"
+
                                                         ></textarea>
                                                     </div>
 
-                                                    <button 
-                                                        type="submit" 
-                                                        disabled={formStatus === 'submitting'}
-                                                        className="btn-form-submit"
-                                                    >
-                                                        {formStatus === 'submitting' ? (
-                                                            <RefreshCw size={14} className="animate-spin" />
-                                                        ) : (
-                                                            <>
-                                                                <span>Send Inquiry</span>
-                                                                <ArrowRight size={14} />
-                                                            </>
-                                                        )}
+                                                    <button type="submit" className="btn-form-submit">
+                                                        <span>Open email draft</span><ArrowUpRight size={16} />
                                                     </button>
+                                                    {formStatus === 'email-handoff' && <p className="form-handoff" role="status">Continue in your email app to send your inquiry. If it didn’t open, you can copy your message and email info@sirkil.com. Your details are still here.</p>}
                                                 </form>
-                                            )}
                                         </div>
                                     </div>
                                 </FadeInSection>
@@ -872,16 +824,19 @@
 
                     {/* DYNAMIC INLINE DETAIL MODAL */}
                     {selectedProject && (
-                        <ProjectDetailModal 
-                            project={selectedProject} 
-                            onClose={() => setSelectedProject(null)} 
+                        <ProjectDetailModal
+                            project={selectedProject}
+                            onClose={() => setSelectedProject(null)}
                         />
                     )}
 
                     {/* FOOTER */}
-                    <footer className="footer">
+                    <footer className="footer" inert={mobileMenuOpen || selectedProject ? '' : undefined}>
+                        <div className="footer-inner">
                         <img src="assets/Sirkil Logo.png" alt="Sirkil Logo" className="footer-logo" width="625" height="263" loading="lazy" decoding="async" />
+                        <div className="footer-links"><a href="#portfolio" onClick={() => navigateTo('portfolio')}>Explore our work</a><a href="mailto:info@sirkil.com">info@sirkil.com</a></div>
                         <p className="footer-copy">&copy; {new Date().getFullYear()} Sirkil Experiential Agency. All rights reserved.</p>
+                        </div>
                     </footer>
 
                 </div>
@@ -892,7 +847,7 @@
         function ProjectDetailModal({ project, onClose }) {
             const [currentSlide, setCurrentSlide] = useState(0);
             const slides = project.slideshow || [];
-            
+
             // Format video URL
             const videoUrl = useMemo(() => {
                 let url = project.videoUrl || project.video || "";
@@ -916,13 +871,13 @@
             return (
                 <div className="modal-backdrop" onClick={onClose}>
                     <div className="modal-content-card animate-in fade-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
-                        
+
                         <button className="modal-close-btn" onClick={onClose}>
                             <X size={18} />
                         </button>
 
                         <div className="modal-body">
-                            
+
                             {/* Slideshow Image Slider */}
                             {slides.length > 0 && (
                                 <div className="modal-slider-container mb-6">
@@ -944,8 +899,8 @@
                                     {slides.length > 1 && (
                                         <div className="modal-slider-dots">
                                             {slides.map((_, idx) => (
-                                                <button 
-                                                    key={idx} 
+                                                <button
+                                                    key={idx}
                                                     className={`modal-slider-dot ${idx === currentSlide ? 'active' : ''}`}
                                                     onClick={() => setCurrentSlide(idx)}
                                                 />
