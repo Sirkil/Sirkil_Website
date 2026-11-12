@@ -1,24 +1,5 @@
 const projectsData = [
   {
-    "id": "branding2",
-    "title": "Cammoun",
-    "category": "Branding",
-    "country": "KSA",
-    "client": "",
-    "industry": "",
-    "rate": "",
-    "date": "",
-    "thumbnail": "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/1.png",
-    "hasVideo": false,
-    "description": "",
-    "slideshow": [
-      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/2.png",
-      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/3.png",
-      "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Cammoun/4.png"
-    ],
-    "video": ""
-  },
-  {
     "id": "branding3",
     "title": "Babel Ltd.",
     "category": "Branding",
@@ -1478,5 +1459,36 @@ const projectsData = [
       "https://raw.githubusercontent.com/Sirkil/Sirkil_Website_Media/main/Branding/Sakab%20Sport/7.png"
     ],
     "video": ""
+  },
+  {
+    "id": "platform-11",
+    "title": "Talabat Partners Event",
+    "category": "End to end Event Organization",
+    "country": "Egypt",
+    "client": "Talabat",
+    "industry": "",
+    "rate": "",
+    "date": "2026",
+    "thumbnail": "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/1.jpg",
+    "hasVideo": false,
+    "description": "talabat Annual Partners Event 2026\nShaping Everyday Impact\n\nA celebration of the people, partnerships, and innovations that make an impact every day.\n\nFor the talabat Annual Partners Event 2026, we developed a comprehensive event experience under the theme “Shaping Everyday Impact.” Our vision was to create an engaging environment that celebrates success, strengthens connections, and recognizes the partnerships driving progress.\n\nFrom creative concept development and 3D visualization to event production, immersive branding, interactive experiences, and on-ground execution, every detail was carefully designed to reflect talabat’s dynamic identity and bring the event’s vision to life.\n\nBeyond the physical experience, we developed a custom-built registration and event management system*, tailored specifically to the event. The system streamlined the entire guest management journey, including digital registration, RSVP tracking, automated reminders, centralized guest data management, and real-time attendance monitoring. This provided the event team with greater operational visibility, simplified coordination, and a seamless experience for attendees.\n\nBy integrating creative design, innovative technology, and efficient event management, we delivered a cohesive experience that demonstrates our ability to combine impactful storytelling with smart digital solutions and exceptional production.\n\nProject Scope: Creative Concept & Direction · 3D Design & Visualization · Event Production · Interactive Experiences · Custom Registration & Event Management System · Digital Guest Management · On-Ground Execution",
+    "slideshow": [
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/2.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/3.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/4.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/5.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/6.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/7.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/8.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/9.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/10.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/11.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/12.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/13.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/14.jpg",
+      "https://media.githubusercontent.com/media/Sirkil/Sirkil_Website_Media/main/LargeMedia/Events/Talabat%20Partners%20Event/15.jpg"
+    ],
+    "video": "",
+    "showInLatest": true
   }
 ];
